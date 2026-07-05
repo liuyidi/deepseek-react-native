@@ -1,0 +1,121 @@
+lib/sessionConfig.ts
+  s_ec0893953fb45d::t_1e2b19f5ed9851 1-19
+components/__tests__/ThemedText-test.tsx
+  s_ec0893953fb45d::t_fbad7f13f0fcd0 4-5,9-15
+components/ui/TabBarBackground.ios.tsx
+  s_ec0893953fb45d::t_b3607c79f71aa0 1-2,4-5,9-11,13-25
+app/(tabs)/settings/api-key.tsx
+  s_ec0893953fb45d::t_6dbc337042b7d8 19,27,29,32-33,35-38,43-44,47,50,54,58,63,67,71-72,88,94,99-109,111-116,121,124-125,129,132,137-138,141,144,151-152,155-157,160-165,167,183,188,192-196,225,227,229,231
+app/(tabs)/settings/_layout.tsx
+  s_ec0893953fb45d::t_aa0755076ad599 23
+  s_ec0893953fb45d::t_a3e3f630b9e622 1-22,24-28
+constants/Colors.ts
+  s_ec0893953fb45d::t_e224ec97cc102e 2-3,6-7,11-16,18-19,21,24-29,31-34,36,45-46
+  s_ec0893953fb45d::t_2257c060e9f3cf 47
+  s_ec0893953fb45d::t_c6096bde3a30fe 48
+lib/userProfileConfig.ts
+  s_ec0893953fb45d::t_4aa36d606d9bf0 1-48
+hooks/useColorScheme.ts
+  s_ec0893953fb45d::t_2fb09ef643ebf8 1-5
+app/(tabs)/settings/about.tsx
+  s_ec0893953fb45d::t_fdbb0f56d6107b 1-68
+app/(tabs)/index.tsx
+  s_ec0893953fb45d::t_ca66da2f713b54 170-175,177
+  s_ec0893953fb45d::t_1525710b23cd8b 180-181
+  s_ec0893953fb45d::t_719909457daf1a 120
+  s_ec0893953fb45d::t_f4b998dcd43674 15
+  s_ec0893953fb45d::t_9905ad3046185a 151
+  s_ec0893953fb45d::t_016ff2b010249f 105-111
+  s_ec0893953fb45d::t_5f6b78cd8f5d04 52,54-56
+  s_ec0893953fb45d::t_04c2c216180995 157,160
+  s_ec0893953fb45d::t_1cf09007817bfc 131-137,139-144
+  s_ec0893953fb45d::t_6baeddbb1f262a 62,66
+hooks/useAppTheme.ts
+  s_ec0893953fb45d::t_f45ea825fd10ce 1-7
+app/(tabs)/explore.tsx
+  s_ec0893953fb45d::t_690f231100b646 19,24,30
+  s_ec0893953fb45d::t_047f3ac4f6c881 173-188,193
+  s_ec0893953fb45d::t_dbeb99a7336b70 29
+  s_ec0893953fb45d::t_3f17808b8f579a 212-218
+  s_ec0893953fb45d::t_9e37567ac5223c 36
+  s_ec0893953fb45d::t_4fcaf598971398 194,198,201
+  s_ec0893953fb45d::t_a124782b311fea 22,25-27,34,39-40,117-131,220-243,250-252
+  s_ec0893953fb45d::t_f65ed049237c10 138-151,155
+  s_ec0893953fb45d::t_db3d66b7dab5b5 160-165
+  s_ec0893953fb45d::t_9ba07b71a3c062 249,253-254
+  s_ec0893953fb45d::t_833a95a28896f3 37
+  s_ec0893953fb45d::t_3a26e3dd46d072 47
+  s_ec0893953fb45d::t_0e99c9aca4cc20 108
+context/AppearanceContext.tsx
+  s_ec0893953fb45d::t_86ae2229f30418 1-71
+app/(tabs)/settings/account.tsx
+  s_ec0893953fb45d::t_35f64bab4f0559 34,121,125-129,138,155
+  s_ec0893953fb45d::t_1aeeaded1fd4bf 108-110
+  s_ec0893953fb45d::t_10faa044a27bf6 1-10,12-13,15-28,30,32-33,35-45,62-107,111-120,122-124,130-137,139-154,156-168,188-191
+  s_ec0893953fb45d::t_83702cbddc86dc 169-187
+  s_ec0893953fb45d::t_7a3c8e0e09673a 11
+  s_ec0893953fb45d::t_d4cb58085f79c9 46-61
+  s_ec0893953fb45d::t_58659c83510722 14
+  s_ec0893953fb45d::t_a4238aab4a0b91 29,31
+app/(tabs)/settings/appearance.tsx
+  s_ec0893953fb45d::t_c7e1487f5a8793 1-128
+components/ThemedText.tsx
+  s_ec0893953fb45d::t_757414b5b16058 1,8,11-25,33,43,60-63,67-71,75-83,88
+app/(tabs)/settings/profile.tsx
+  s_ec0893953fb45d::t_2f84f246cad1bb 1-240
+components/settings/EditFieldModal.tsx
+  s_ec0893953fb45d::t_e533ade1f67650 1-134
+lib/accountConfig.ts
+  s_ec0893953fb45d::t_882b9c34bc7a18 1-61
+lib/appearanceLabels.ts
+  s_ec0893953fb45d::t_0df130ba48ca41 1-33
+hooks/useThemeColor.ts
+  s_ec0893953fb45d::t_b962a5b9cc97ce 2,8-9,12,20-21
+components/chat/FloatingChatComposer.tsx
+  s_ec0893953fb45d::t_fe66f0d0ab7963 3
+  s_ec0893953fb45d::t_5b70dc8fd23e27 129-132
+  s_ec0893953fb45d::t_69e539b24e7521 1-2,4-128,133-214
+app/_layout.tsx
+  s_ec0893953fb45d::t_d24c4cc838e81c 9,14,16-28,40-42
+app/(tabs)/settings/index.tsx
+  s_ec0893953fb45d::t_165d137a6f709e 145-155
+  s_ec0893953fb45d::t_255e891496e189 29
+  s_ec0893953fb45d::t_74019ee0470e94 16
+  s_ec0893953fb45d::t_cfb02f195e41c5 1-15,17-28,30-31,33-34,36-37,39-41,43-57,61-85,87-144,156-232
+  s_ec0893953fb45d::t_c1fa3845565087 32,35,38,42
+  s_ec0893953fb45d::t_66becae5930502 58-60
+  s_ec0893953fb45d::t_da5c7bf208f389 86
+components/settings/SettingsGroup.tsx
+  s_ec0893953fb45d::t_59b924d87d4cae 7
+  s_ec0893953fb45d::t_ca22aa7ab66a54 1
+  s_ec0893953fb45d::t_fefc79e8c7679b 2-6,8-33
+components/settings/SettingsNavRow.tsx
+  s_ec0893953fb45d::t_7ebffdba2e586b 1-106
+hooks/useColorScheme.web.ts
+  s_ec0893953fb45d::t_652e986cad6dfb 1-3,6,9,16-17,20
+app/(tabs)/_layout.tsx
+  s_ec0893953fb45d::t_0ded39b945597d 55
+  s_ec0893953fb45d::t_8ccc68a11e5898 3,12-13,18-20,27-34,42,49,56,62-68
+components/ui/IconSymbol.tsx
+  s_ec0893953fb45d::t_1380a471509fd4 15
+app/(tabs)/settings/about-app.tsx
+  s_ec0893953fb45d::t_b9f2f9e5774090 1-116
+lib/appearanceConfig.ts
+  s_ec0893953fb45d::t_5c3b90878ed363 1-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.28-trip",
+  "base_commit_sha": "47872b53b499d84522711af17c7c9834eae3fb28",
+  "prompts": {},
+  "sessions": {
+    "s_ec0893953fb45d": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "63df07f4-c056-49ad-bfc2-b34c78be47a1",
+        "model": "default"
+      },
+      "human_author": "liuyidi <yidiliu@trip.com>"
+    }
+  }
+}
