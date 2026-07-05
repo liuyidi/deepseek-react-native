@@ -9,12 +9,14 @@ import { SettingsGroup } from "@/components/settings/SettingsGroup";
 import { SettingsNavRow } from "@/components/settings/SettingsNavRow";
 import { ThemedText } from "@/components/ThemedText";
 import { Colors } from "@/constants/Colors";
+import { useChatPreferences } from "@/context/ChatPreferencesContext";
 import { useAppearance } from "@/context/AppearanceContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { maskEmail, maskPhone, type AccountInfo, getAccountInfo } from "@/lib/accountConfig";
 import { APPEARANCE_LABELS } from "@/lib/appearanceLabels";
 import { LANGUAGE_LABELS } from "@/lib/languageLabels";
+import { MODEL_LABELS } from "@/lib/modelLabels";
 import { getDeepSeekApiKey, maskApiKey } from "@/lib/deepseekConfig";
 import { formatTokenCount, getTokenUsageStats } from "@/lib/tokenUsageConfig";
 import { logoutUser } from "@/lib/sessionConfig";
@@ -31,6 +33,7 @@ export default function SettingsHubScreen() {
   const theme = useAppTheme();
   const { mode: appearanceMode, setMode } = useAppearance();
   const { language } = useLanguage();
+  const { model, isThinkingActive } = useChatPreferences();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [account, setAccount] = useState<AccountInfo | null>(null);
   const [apiKeySummary, setApiKeySummary] = useState("未配置");
@@ -163,6 +166,26 @@ export default function SettingsHubScreen() {
           icon="key-outline"
           showDivider={false}
           onPress={() => router.push("/(tabs)/settings/api-key")}
+        />
+      </SettingsGroup>
+
+      <SettingsGroup>
+        <SettingsNavRow
+          title="模型"
+          value={MODEL_LABELS[model]}
+          icon="cube-outline"
+          showDivider={false}
+          onPress={() => router.push("/(tabs)/settings/model")}
+        />
+      </SettingsGroup>
+
+      <SettingsGroup>
+        <SettingsNavRow
+          title="思考模式"
+          value={isThinkingActive ? "开启" : "关闭"}
+          icon="bulb-outline"
+          showDivider={false}
+          onPress={() => router.push("/(tabs)/settings/thinking")}
         />
       </SettingsGroup>
 

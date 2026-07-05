@@ -1,11 +1,10 @@
 import { Colors } from "@/constants/Colors";
 import { useDeepSeekApiKey } from "@/hooks/useDeepSeekApiKey";
-import { DEEPSEEK_API_URL } from "@/lib/deepseekConfig";
 import { addTokenUsage } from "@/lib/tokenUsageConfig";
+import { buildChatApiMessages, streamDeepSeekChat } from "@/lib/deepseekChat";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import axios from "axios";
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   ActivityIndicator,
   ImageBackground,
@@ -13,30 +12,37 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import {
-  Bubble,
-  SystemMessage,
-  IMessage,
-  GiftedChat,
-} from "react-native-gifted-chat";
+import { SystemMessage, GiftedChat } from "react-native-gifted-chat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
+import { ChatBubble } from "@/components/chat/ChatBubble";
 import {
   FloatingChatComposer,
   useChatListBottomPadding,
 } from "@/components/chat/FloatingChatComposer";
 import { ThemedText } from "@/components/ThemedText";
+import { useChatPreferences } from "@/context/ChatPreferencesContext";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import type { AppChatMessage } from "@/types/chat";
+
+const BOT_USER = {
+  _id: 2,
+  name: "DeepSeek",
+  avatar: "https://cdn.deepseek.com/platform/favicon.png",
+};
 
 export default function TabTwoScreen() {
-  const [messages, setMessages] = useState<IMessage[]>([]);
+  const [messages, setMessages] = useState<AppChatMessage[]>([]);
   const [composerText, setComposerText] = useState("");
+  const [isStreaming, setIsStreaming] = useState(false);
+  const streamingMessageIdRef = useRef<string | null>(null);
   const insets = useSafeAreaInsets();
   const theme = useAppTheme();
   const colorScheme = useColorScheme() ?? "light";
   const { apiKey, hasApiKey, isLoading } = useDeepSeekApiKey();
+  const { model, thinkingEnabled } = useChatPreferences();
   const tabBarHeight = useBottomTabBarHeight();
   const listBottomPadding = useChatListBottomPadding(tabBarHeight);
 
@@ -50,85 +56,120 @@ export default function TabTwoScreen() {
         user: {
           _id: 0,
           name: "DeepSeek",
-          avatar: "https://cdn.deepseek.com/platform/favicon.png",
+          avatar: BOT_USER.avatar,
         },
       },
     ]);
   }, []);
 
-  const sendMessageToDeepSeek = async (userMessage: string) => {
-    if (!apiKey) {
-      return;
-    }
-
-    try {
-      const response = await axios.post(
-        DEEPSEEK_API_URL,
-        {
-          model: "deepseek-chat",
-          messages: [{ role: "user", content: userMessage }],
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-          },
-        }
+  const updateStreamingMessage = useCallback(
+    (messageId: string, patch: Partial<AppChatMessage>) => {
+      setMessages((prevMessages) =>
+        prevMessages.map((message) =>
+          message._id === messageId ? { ...message, ...patch } : message
+        )
       );
+    },
+    []
+  );
 
-      const botReply = response.data.choices[0].message.content;
-
-      const newBotMessage: IMessage = {
-        _id: Math.random().toString(36).substring(7),
-        text: botReply,
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: "DeepSeek",
-          avatar: "https://cdn.deepseek.com/platform/favicon.png",
-        },
-      };
-
-      setMessages((prevMessages) => GiftedChat.append(prevMessages, [newBotMessage]));
-
-      const usage = response.data.usage as
-        | {
-            prompt_tokens?: number;
-            completion_tokens?: number;
-            total_tokens?: number;
-          }
-        | undefined;
-      if (usage) {
-        void addTokenUsage(usage);
+  const sendMessageToDeepSeek = useCallback(
+    async (history: AppChatMessage[]) => {
+      if (!apiKey) {
+        return;
       }
-    } catch (error) {
-      console.error("DeepSeek API Error:", error);
-      const errorMessage: IMessage = {
-        _id: Math.random().toString(36).substring(7),
-        system: true,
-        text: "请求失败，请检查 API Key 或账户余额后重试。",
+
+      const messageId = Math.random().toString(36).substring(7);
+      streamingMessageIdRef.current = messageId;
+
+      const placeholder: AppChatMessage = {
+        _id: messageId,
+        text: "",
         createdAt: new Date(),
-        user: { _id: 0, name: "System" },
+        user: BOT_USER,
       };
-      setMessages((prevMessages) => GiftedChat.append(prevMessages, [errorMessage]));
-    }
-  };
+
+      setMessages((prevMessages) => GiftedChat.append(prevMessages, [placeholder]));
+      setIsStreaming(true);
+
+      let content = "";
+      let reasoningContent = "";
+
+      await streamDeepSeekChat({
+        apiKey,
+        model,
+        messages: buildChatApiMessages(history),
+        thinkingEnabled,
+        onDelta: (delta) => {
+          if (delta.content) {
+            content += delta.content;
+          }
+          if (delta.reasoningContent) {
+            reasoningContent += delta.reasoningContent;
+          }
+          updateStreamingMessage(messageId, {
+            text: content,
+            reasoningContent: reasoningContent || undefined,
+          });
+        },
+        onComplete: (usage) => {
+          streamingMessageIdRef.current = null;
+          setIsStreaming(false);
+
+          if (!content.trim() && !reasoningContent.trim()) {
+            updateStreamingMessage(messageId, {
+              text: "（无回复内容）",
+            });
+          }
+
+          if (usage) {
+            void addTokenUsage(usage);
+          }
+        },
+        onError: () => {
+          streamingMessageIdRef.current = null;
+          setIsStreaming(false);
+          setMessages((prevMessages) =>
+            prevMessages.filter((message) => message._id !== messageId)
+          );
+          const errorMessage: AppChatMessage = {
+            _id: Math.random().toString(36).substring(7),
+            system: true,
+            text: "请求失败，请检查 API Key、模型或账户余额后重试。",
+            createdAt: new Date(),
+            user: { _id: 0, name: "System" },
+          };
+          setMessages((prevMessages) =>
+            GiftedChat.append(prevMessages, [errorMessage])
+          );
+        },
+      });
+    },
+    [apiKey, model, thinkingEnabled, updateStreamingMessage]
+  );
 
   const onSend = useCallback(
-    (newMessages: IMessage[] = []) => {
+    (newMessages: AppChatMessage[] = []) => {
       if (!hasApiKey) {
         router.push("/(tabs)/settings/api-key");
         return;
       }
-      setMessages((prevMessages) => GiftedChat.append(prevMessages, newMessages));
-      sendMessageToDeepSeek(newMessages[0]?.text ?? "");
+      if (isStreaming) {
+        return;
+      }
+
+      setMessages((prevMessages) => {
+        const nextMessages = GiftedChat.append(prevMessages, newMessages);
+        void sendMessageToDeepSeek(nextMessages);
+        return nextMessages;
+      });
     },
-    [hasApiKey, apiKey]
+    [hasApiKey, isStreaming, sendMessageToDeepSeek]
   );
 
   const handleComposerSend = useCallback(() => {
     const trimmed = composerText.trim();
-    if (!trimmed) {
+    if (!trimmed || isStreaming) {
       return;
     }
     onSend([
@@ -140,31 +181,13 @@ export default function TabTwoScreen() {
       },
     ]);
     setComposerText("");
-  }, [composerText, onSend]);
+  }, [composerText, isStreaming, onSend]);
 
   const renderBubble = useCallback(
-    (props: React.ComponentProps<typeof Bubble>) => (
-      <Bubble
-        {...props}
-        wrapperStyle={{
-          right: {
-            backgroundColor: colorScheme === "dark" ? "#1E3A5F" : "#E8F0FF",
-            borderRadius: 18,
-          },
-          left: {
-            backgroundColor: theme.card,
-            borderRadius: 18,
-            borderWidth: StyleSheet.hairlineWidth,
-            borderColor: theme.border,
-          },
-        }}
-        textStyle={{
-          right: { color: colorScheme === "dark" ? "#EBEBF5" : "#1C1C1E" },
-          left: { color: theme.text },
-        }}
-      />
+    (props: React.ComponentProps<typeof ChatBubble>) => (
+      <ChatBubble {...props} colorScheme={colorScheme} />
     ),
-    [colorScheme, theme.border, theme.card, theme.text]
+    [colorScheme]
   );
 
   if (isLoading) {
@@ -234,6 +257,7 @@ export default function TabTwoScreen() {
           messages={messages}
           onSend={onSend}
           user={{ _id: 1 }}
+          isTyping={isStreaming}
           isKeyboardInternallyHandled={false}
           renderInputToolbar={() => null}
           listViewProps={{
@@ -251,6 +275,7 @@ export default function TabTwoScreen() {
           onSend={handleComposerSend}
           theme={theme}
           colorScheme={colorScheme}
+          disabled={isStreaming}
         />
       </View>
     </ImageBackground>

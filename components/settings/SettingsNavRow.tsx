@@ -63,7 +63,7 @@ export function SettingsNavRow({
           borderBottomWidth: StyleSheet.hairlineWidth,
           borderBottomColor: theme.border,
         },
-        pressed && onPress ? styles.pressed : undefined,
+        pressed ? styles.pressed : undefined,
       ]}
     >
       {icon ? (

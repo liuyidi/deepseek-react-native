@@ -2,34 +2,38 @@ import { Ionicons } from "@expo/vector-icons";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useCallback, useEffect, useState } from "react";
 import {
+  Keyboard,
   Platform,
   Pressable,
   StyleSheet,
   TextInput,
   View,
+  type KeyboardEvent,
 } from "react-native";
-import Animated, {
-  runOnJS,
-  useAnimatedKeyboard,
-  useAnimatedReaction,
-  useAnimatedStyle,
-} from "react-native-reanimated";
 
 import { Colors, type ThemeColors } from "@/constants/Colors";
 
-/** 悬浮输入条本体高度（含内边距，不含 Tab 间距） */
+/** 悬浮输入条最小高度 */
 export const FLOATING_COMPOSER_HEIGHT = 56;
+/** 多行输入时输入框最大高度 */
+export const FLOATING_COMPOSER_MAX_HEIGHT = 120;
 /** 输入条与 Tab / 键盘之间的间距 */
 export const FLOATING_TAB_GAP = 10;
+/** 消息列表与悬浮输入框之间的间距 */
+export const COMPOSER_LIST_GAP = 12;
 
-const COMPOSER_STACK =
-  FLOATING_COMPOSER_HEIGHT + FLOATING_TAB_GAP + 12;
+/** 悬浮输入条最大占用高度（含 card 内边距） */
+const COMPOSER_OVERLAY_HEIGHT =
+  FLOATING_COMPOSER_MAX_HEIGHT + 12 + FLOATING_TAB_GAP + COMPOSER_LIST_GAP;
 
-function getIdleListPadding(tabBarHeight: number): number {
-  if (Platform.OS === "ios") {
-    return tabBarHeight + COMPOSER_STACK;
+function getListPadding(tabBarHeight: number, keyboardHeight: number): number {
+  if (keyboardHeight > 0) {
+    return keyboardHeight + COMPOSER_OVERLAY_HEIGHT;
   }
-  return COMPOSER_STACK;
+  if (Platform.OS === "ios") {
+    return tabBarHeight + COMPOSER_OVERLAY_HEIGHT;
+  }
+  return COMPOSER_OVERLAY_HEIGHT;
 }
 
 type FloatingChatComposerProps = {
@@ -39,6 +43,7 @@ type FloatingChatComposerProps = {
   theme: ThemeColors;
   colorScheme: "light" | "dark";
   maxLength?: number;
+  disabled?: boolean;
 };
 
 export function FloatingChatComposer({
@@ -48,18 +53,37 @@ export function FloatingChatComposer({
   theme,
   colorScheme,
   maxLength = 1000,
+  disabled = false,
 }: FloatingChatComposerProps) {
   const tabBarHeight = useBottomTabBarHeight();
-  const keyboard = useAnimatedKeyboard();
-  const hasText = Boolean(text.trim());
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const hasText = Boolean(text.trim()) && !disabled;
   const composerBorder = colorScheme === "dark" ? "#48484A" : "#E4E4E7";
 
-  const containerStyle = useAnimatedStyle(() => ({
-    bottom:
-      keyboard.height.value > 0
-        ? keyboard.height.value + FLOATING_TAB_GAP
-        : tabBarHeight + FLOATING_TAB_GAP,
-  }));
+  useEffect(() => {
+    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+
+    const onShow = (event: KeyboardEvent) => {
+      setKeyboardHeight(event.endCoordinates.height);
+    };
+    const onHide = () => {
+      setKeyboardHeight(0);
+    };
+
+    const showSub = Keyboard.addListener(showEvent, onShow);
+    const hideSub = Keyboard.addListener(hideEvent, onHide);
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  const bottomOffset =
+    keyboardHeight > 0
+      ? keyboardHeight + FLOATING_TAB_GAP
+      : tabBarHeight + FLOATING_TAB_GAP;
 
   const handleSend = useCallback(() => {
     if (hasText) {
@@ -68,8 +92,8 @@ export function FloatingChatComposer({
   }, [hasText, onSend]);
 
   return (
-    <Animated.View
-      style={[styles.container, containerStyle]}
+    <View
+      style={[styles.container, { bottom: bottomOffset }]}
       pointerEvents="box-none"
     >
       <View
@@ -82,7 +106,8 @@ export function FloatingChatComposer({
         <TextInput
           value={text}
           onChangeText={onChangeText}
-          placeholder="给 DeepSeek 发送消息"
+          editable={!disabled}
+          placeholder={disabled ? "DeepSeek 正在回复…" : "给 DeepSeek 发送消息"}
           placeholderTextColor={theme.textSecondary}
           keyboardAppearance={colorScheme === "dark" ? "dark" : "light"}
           selectionColor={Colors.primary}
@@ -115,34 +140,48 @@ export function FloatingChatComposer({
           </Pressable>
         </View>
       </View>
-    </Animated.View>
+    </View>
   );
 }
 
-/** 消息列表底部留白，随键盘高度同步更新 */
+/** inverted 列表底部留白（使用 paddingTop） */
 export function useChatListBottomPadding(tabBarHeight: number) {
-  const keyboard = useAnimatedKeyboard();
-  const idlePadding = getIdleListPadding(tabBarHeight);
-
-  const [paddingBottom, setPaddingBottom] = useState(idlePadding);
-
-  useEffect(() => {
-    setPaddingBottom(idlePadding);
-  }, [idlePadding]);
-
-  useAnimatedReaction(
-    () => keyboard.height.value,
-    (height) => {
-      const next =
-        height > 0
-          ? height + COMPOSER_STACK
-          : idlePadding;
-      runOnJS(setPaddingBottom)(next);
-    },
-    [idlePadding]
+  const [paddingTop, setPaddingTop] = useState(() =>
+    getListPadding(tabBarHeight, 0)
   );
 
-  return { paddingBottom };
+  const applyPadding = useCallback(
+    (keyboardHeight: number) => {
+      setPaddingTop(getListPadding(tabBarHeight, keyboardHeight));
+    },
+    [tabBarHeight]
+  );
+
+  useEffect(() => {
+    applyPadding(0);
+  }, [applyPadding]);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+
+    const onShow = (event: KeyboardEvent) => {
+      applyPadding(event.endCoordinates.height);
+    };
+    const onHide = () => {
+      applyPadding(0);
+    };
+
+    const showSub = Keyboard.addListener(showEvent, onShow);
+    const hideSub = Keyboard.addListener(hideEvent, onHide);
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, [applyPadding]);
+
+  return { paddingTop };
 }
 
 const styles = StyleSheet.create({
@@ -157,7 +196,6 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     borderWidth: StyleSheet.hairlineWidth,
     minHeight: FLOATING_COMPOSER_HEIGHT,
-    overflow: "hidden",
     paddingHorizontal: 8,
     paddingVertical: 6,
     gap: 6,
@@ -190,7 +228,7 @@ const styles = StyleSheet.create({
     marginBottom: Platform.select({ ios: 10, default: 8 }),
     fontSize: 16,
     lineHeight: 22,
-    maxHeight: 120,
+    maxHeight: FLOATING_COMPOSER_MAX_HEIGHT,
     backgroundColor: "transparent",
   },
   inputIos: {

@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { AppearanceProvider } from '@/context/AppearanceContext';
+import { ChatPreferencesProvider } from '@/context/ChatPreferencesContext';
 import { LanguageProvider } from '@/context/LanguageContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -40,7 +41,9 @@ export default function RootLayout() {
   return (
     <AppearanceProvider>
       <LanguageProvider>
-        {loaded ? <RootLayoutNav /> : null}
+        <ChatPreferencesProvider>
+          {loaded ? <RootLayoutNav /> : null}
+        </ChatPreferencesProvider>
       </LanguageProvider>
     </AppearanceProvider>
   );
