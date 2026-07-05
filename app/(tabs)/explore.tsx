@@ -1,7 +1,11 @@
 import { Colors } from "@/constants/Colors";
 import { useDeepSeekApiKey } from "@/hooks/useDeepSeekApiKey";
 import { addTokenUsage } from "@/lib/tokenUsageConfig";
-import { buildChatApiMessages, streamDeepSeekChat } from "@/lib/deepseekChat";
+import {
+  buildChatApiMessages,
+  formatChatErrorMessage,
+  streamDeepSeekChat,
+} from "@/lib/deepseekChat";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState, useCallback, useEffect, useRef } from "react";
@@ -12,7 +16,11 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { SystemMessage, GiftedChat } from "react-native-gifted-chat";
+import {
+  SystemMessage,
+  GiftedChat,
+  type IMessage,
+} from "react-native-gifted-chat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
@@ -66,30 +74,22 @@ export default function TabTwoScreen() {
     (messageId: string, patch: Partial<AppChatMessage>) => {
       setMessages((prevMessages) =>
         prevMessages.map((message) =>
-          message._id === messageId ? { ...message, ...patch } : message
+          String(message._id) === String(messageId)
+            ? { ...message, ...patch }
+            : message
         )
       );
     },
     []
   );
 
-  const sendMessageToDeepSeek = useCallback(
-    async (history: AppChatMessage[]) => {
+  const startBotReply = useCallback(
+    async (botMessageId: string, apiMessages: ReturnType<typeof buildChatApiMessages>) => {
       if (!apiKey) {
         return;
       }
 
-      const messageId = Math.random().toString(36).substring(7);
-      streamingMessageIdRef.current = messageId;
-
-      const placeholder: AppChatMessage = {
-        _id: messageId,
-        text: "",
-        createdAt: new Date(),
-        user: BOT_USER,
-      };
-
-      setMessages((prevMessages) => GiftedChat.append(prevMessages, [placeholder]));
+      streamingMessageIdRef.current = botMessageId;
       setIsStreaming(true);
 
       let content = "";
@@ -98,7 +98,7 @@ export default function TabTwoScreen() {
       await streamDeepSeekChat({
         apiKey,
         model,
-        messages: buildChatApiMessages(history),
+        messages: apiMessages,
         thinkingEnabled,
         onDelta: (delta) => {
           if (delta.content) {
@@ -107,9 +107,10 @@ export default function TabTwoScreen() {
           if (delta.reasoningContent) {
             reasoningContent += delta.reasoningContent;
           }
-          updateStreamingMessage(messageId, {
+          updateStreamingMessage(botMessageId, {
             text: content,
             reasoningContent: reasoningContent || undefined,
+            isPending: false,
           });
         },
         onComplete: (usage) => {
@@ -117,8 +118,9 @@ export default function TabTwoScreen() {
           setIsStreaming(false);
 
           if (!content.trim() && !reasoningContent.trim()) {
-            updateStreamingMessage(messageId, {
+            updateStreamingMessage(botMessageId, {
               text: "（无回复内容）",
+              isPending: false,
             });
           }
 
@@ -126,16 +128,18 @@ export default function TabTwoScreen() {
             void addTokenUsage(usage);
           }
         },
-        onError: () => {
+        onError: (error) => {
           streamingMessageIdRef.current = null;
           setIsStreaming(false);
           setMessages((prevMessages) =>
-            prevMessages.filter((message) => message._id !== messageId)
+            prevMessages.filter(
+              (message) => String(message._id) !== String(botMessageId)
+            )
           );
           const errorMessage: AppChatMessage = {
             _id: Math.random().toString(36).substring(7),
             system: true,
-            text: "请求失败，请检查 API Key、模型或账户余额后重试。",
+            text: formatChatErrorMessage(error),
             createdAt: new Date(),
             user: { _id: 0, name: "System" },
           };
@@ -158,13 +162,23 @@ export default function TabTwoScreen() {
         return;
       }
 
+      const botMessageId = Math.random().toString(36).substring(7);
+      const placeholder: AppChatMessage = {
+        _id: botMessageId,
+        text: "",
+        isPending: true,
+        createdAt: new Date(),
+        user: BOT_USER,
+      };
+
       setMessages((prevMessages) => {
-        const nextMessages = GiftedChat.append(prevMessages, newMessages);
-        void sendMessageToDeepSeek(nextMessages);
-        return nextMessages;
+        const withUser = GiftedChat.append(prevMessages, newMessages);
+        const apiMessages = buildChatApiMessages(withUser);
+        void startBotReply(botMessageId, apiMessages);
+        return GiftedChat.append(withUser, [placeholder]);
       });
     },
-    [hasApiKey, isStreaming, sendMessageToDeepSeek]
+    [hasApiKey, isStreaming, startBotReply]
   );
 
   const handleComposerSend = useCallback(() => {
@@ -185,9 +199,25 @@ export default function TabTwoScreen() {
 
   const renderBubble = useCallback(
     (props: React.ComponentProps<typeof ChatBubble>) => (
-      <ChatBubble {...props} colorScheme={colorScheme} />
+      <ChatBubble {...props} colorScheme={colorScheme} isStreaming={isStreaming} />
     ),
-    [colorScheme]
+    [colorScheme, isStreaming]
+  );
+
+  const shouldUpdateMessage = useCallback(
+    (
+      current: { currentMessage: IMessage },
+      next: { currentMessage: IMessage }
+    ) => {
+      const currentMessage = current.currentMessage as AppChatMessage;
+      const nextMessage = next.currentMessage as AppChatMessage;
+      return (
+        currentMessage.text !== nextMessage.text ||
+        currentMessage.reasoningContent !== nextMessage.reasoningContent ||
+        currentMessage.isPending !== nextMessage.isPending
+      );
+    },
+    []
   );
 
   if (isLoading) {
@@ -260,9 +290,11 @@ export default function TabTwoScreen() {
           isTyping={isStreaming}
           isKeyboardInternallyHandled={false}
           renderInputToolbar={() => null}
+          shouldUpdateMessage={shouldUpdateMessage}
           listViewProps={{
             contentContainerStyle: listBottomPadding,
             keyboardShouldPersistTaps: "handled",
+            extraData: messages,
           }}
           renderSystemMessage={(props) => (
             <SystemMessage {...props} textStyle={{ color: theme.textSecondary }} />

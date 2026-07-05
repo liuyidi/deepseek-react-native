@@ -9,7 +9,7 @@ export type DeepSeekModelId =
 const MODEL_STORAGE_KEY = "chat_model_id";
 const THINKING_STORAGE_KEY = "chat_thinking_enabled";
 
-export const DEFAULT_MODEL_ID: DeepSeekModelId = "deepseek-v4-flash";
+export const DEFAULT_MODEL_ID: DeepSeekModelId = "deepseek-chat";
 
 const VALID_MODELS = new Set<DeepSeekModelId>([
   "deepseek-v4-flash",

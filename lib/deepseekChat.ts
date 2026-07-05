@@ -1,3 +1,6 @@
+import axios from "axios";
+import { fetch } from "expo/fetch";
+
 import { DEEPSEEK_API_URL } from "@/lib/deepseekConfig";
 import {
   shouldUseThinking,
@@ -32,30 +35,70 @@ type StreamChunkPayload = {
       content?: string;
       reasoning_content?: string;
     };
+    message?: {
+      content?: string;
+      reasoning_content?: string;
+    };
   }[];
   usage?: TokenUsageDelta;
+  error?: {
+    message?: string;
+  };
+};
+
+type CompletionResponse = {
+  choices?: {
+    message?: {
+      content?: string;
+      reasoning_content?: string;
+    };
+  }[];
+  usage?: TokenUsageDelta;
+  error?: {
+    message?: string;
+  };
 };
 
 function buildRequestBody(
   model: DeepSeekModelId,
   messages: ChatCompletionMessage[],
-  thinkingEnabled: boolean
+  thinkingEnabled: boolean,
+  stream: boolean
 ) {
   const useThinking = shouldUseThinking(model, thinkingEnabled);
-  return {
+  const body: Record<string, unknown> = {
     model,
     messages,
-    stream: true,
-    stream_options: { include_usage: true },
-    ...(useThinking
-      ? {
-          thinking: { type: "enabled" as const },
-          reasoning_effort: "high" as const,
-        }
-      : {
-          thinking: { type: "disabled" as const },
-        }),
+    stream,
   };
+
+  if (stream) {
+    body.stream_options = { include_usage: true };
+  }
+
+  if (useThinking) {
+    body.thinking = { type: "enabled" };
+    body.reasoning_effort = "high";
+  }
+
+  return body;
+}
+
+function parseApiErrorMessage(raw: string, status?: number): string {
+  if (!raw.trim()) {
+    return status ? `HTTP ${status}` : "Unknown API error";
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as { error?: { message?: string } };
+    if (parsed.error?.message) {
+      return parsed.error.message;
+    }
+  } catch {
+    // keep raw text below
+  }
+
+  return raw.slice(0, 200);
 }
 
 async function consumeSseStream(
@@ -72,15 +115,18 @@ async function consumeSseStream(
       break;
     }
     buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split("\n");
+    const lines = buffer.split(/\r?\n/);
     buffer = lines.pop() ?? "";
 
     for (const line of lines) {
       const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith(":")) {
+        continue;
+      }
       if (!trimmed.startsWith("data:")) {
         continue;
       }
-      const payload = trimmed.slice(5).trim();
+      const payload = trimmed.slice(5).trimStart();
       if (payload === "[DONE]") {
         return;
       }
@@ -89,6 +135,41 @@ async function consumeSseStream(
       }
     }
   }
+}
+
+async function completeWithAxios(
+  apiKey: string,
+  model: DeepSeekModelId,
+  messages: ChatCompletionMessage[],
+  thinkingEnabled: boolean,
+  signal?: AbortSignal
+): Promise<{ content: string; reasoningContent?: string; usage?: TokenUsageDelta }> {
+  const response = await axios.post<CompletionResponse>(
+    DEEPSEEK_API_URL,
+    buildRequestBody(model, messages, thinkingEnabled, false),
+    {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      signal,
+    }
+  );
+
+  const message = response.data.choices?.[0]?.message;
+  if (!message?.content && !message?.reasoning_content) {
+    const apiMessage = response.data.error?.message;
+    if (apiMessage) {
+      throw new Error(apiMessage);
+    }
+    throw new Error("API returned empty response.");
+  }
+
+  return {
+    content: message.content ?? "",
+    reasoningContent: message.reasoning_content,
+    usage: response.data.usage,
+  };
 }
 
 export async function streamDeepSeekChat({
@@ -109,23 +190,42 @@ export async function streamDeepSeekChat({
         "Content-Type": "application/json",
         Accept: "text/event-stream",
       },
-      body: JSON.stringify(buildRequestBody(model, messages, thinkingEnabled)),
+      body: JSON.stringify(
+        buildRequestBody(model, messages, thinkingEnabled, true)
+      ),
       signal,
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(errorText || `HTTP ${response.status}`);
+      throw new Error(parseApiErrorMessage(errorText, response.status));
     }
 
     if (!response.body) {
-      throw new Error("Streaming response body is empty.");
+      const fallback = await completeWithAxios(
+        apiKey,
+        model,
+        messages,
+        thinkingEnabled,
+        signal
+      );
+      if (fallback.reasoningContent) {
+        onDelta({ reasoningContent: fallback.reasoningContent });
+      }
+      if (fallback.content) {
+        onDelta({ content: fallback.content });
+      }
+      onComplete(fallback.usage);
+      return;
     }
 
     let usage: TokenUsageDelta | undefined;
 
     await consumeSseStream(response.body, (payload) => {
       const parsed = JSON.parse(payload) as StreamChunkPayload;
+      if (parsed.error?.message) {
+        throw new Error(parsed.error.message);
+      }
       const delta = parsed.choices?.[0]?.delta;
       if (delta?.content) {
         onDelta({ content: delta.content });
@@ -143,17 +243,61 @@ export async function streamDeepSeekChat({
     if (error instanceof Error && error.name === "AbortError") {
       return;
     }
-    onError(error instanceof Error ? error : new Error("Unknown streaming error"));
+
+    const streamError = error instanceof Error ? error : new Error("Unknown streaming error");
+
+    try {
+      const fallback = await completeWithAxios(
+        apiKey,
+        model,
+        messages,
+        thinkingEnabled,
+        signal
+      );
+      if (fallback.reasoningContent) {
+        onDelta({ reasoningContent: fallback.reasoningContent });
+      }
+      if (fallback.content) {
+        onDelta({ content: fallback.content });
+      }
+      onComplete(fallback.usage);
+      return;
+    } catch (fallbackError) {
+      if (fallbackError instanceof Error && fallbackError.name === "AbortError") {
+        return;
+      }
+      if (axios.isAxiosError(fallbackError)) {
+        const status = fallbackError.response?.status;
+        const data = fallbackError.response?.data as { error?: { message?: string } } | string | undefined;
+        const apiMessage =
+          typeof data === "object" && data?.error?.message
+            ? data.error.message
+            : typeof data === "string"
+              ? parseApiErrorMessage(data, status)
+              : fallbackError.message;
+        onError(new Error(apiMessage));
+        return;
+      }
+      onError(
+        fallbackError instanceof Error ? fallbackError : streamError
+      );
+    }
   }
 }
 
 export function buildChatApiMessages(
-  messages: { system?: boolean; text?: string; user: { _id: string | number } }[]
+  messages: {
+    system?: boolean;
+    text?: string;
+    isPending?: boolean;
+    user: { _id: string | number };
+  }[]
 ): ChatCompletionMessage[] {
   return [...messages]
     .filter(
       (message) =>
         !message.system &&
+        !message.isPending &&
         typeof message.text === "string" &&
         message.text.trim().length > 0
     )
@@ -162,4 +306,8 @@ export function buildChatApiMessages(
       role: message.user._id === 1 ? "user" : "assistant",
       content: message.text?.trim() ?? "",
     }));
+}
+
+export function formatChatErrorMessage(error: Error): string {
+  return `请求失败：${error.message}`;
 }

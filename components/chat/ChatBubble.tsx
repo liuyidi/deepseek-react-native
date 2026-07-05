@@ -8,14 +8,19 @@ import { useAppTheme } from "@/hooks/useAppTheme";
 
 type ChatBubbleProps = BubbleProps<AppChatMessage> & {
   colorScheme: "light" | "dark";
+  isStreaming?: boolean;
 };
 
 export function ChatBubble(props: ChatBubbleProps) {
   const theme = useAppTheme();
-  const { colorScheme, currentMessage } = props;
+  const { colorScheme, currentMessage, isStreaming = false } = props;
   const reasoningContent = currentMessage?.reasoningContent?.trim();
   const [isReasoningExpanded, setIsReasoningExpanded] = useState(false);
   const isAssistant = currentMessage?.user._id !== 1;
+  const isPendingReply =
+    isAssistant &&
+    Boolean(currentMessage?.isPending) &&
+    isStreaming;
 
   return (
     <View style={styles.wrap}>
@@ -51,6 +56,11 @@ export function ChatBubble(props: ChatBubbleProps) {
       ) : null}
       <Bubble
         {...props}
+        currentMessage={
+          isPendingReply
+            ? { ...currentMessage!, text: "正在回复…" }
+            : currentMessage
+        }
         wrapperStyle={{
           right: {
             backgroundColor: colorScheme === "dark" ? "#1E3A5F" : "#E8F0FF",
