@@ -4,6 +4,7 @@ import { Bubble, type BubbleProps } from "react-native-gifted-chat";
 
 import { ThemedText } from "@/components/ThemedText";
 import type { AppChatMessage } from "@/types/chat";
+import { Colors } from "@/constants/Colors";
 import { useAppTheme } from "@/hooks/useAppTheme";
 
 type ChatBubbleProps = BubbleProps<AppChatMessage> & {
@@ -76,6 +77,17 @@ export function ChatBubble(props: ChatBubbleProps) {
         textStyle={{
           right: { color: colorScheme === "dark" ? "#EBEBF5" : "#1C1C1E" },
           left: { color: theme.text },
+        }}
+        timeTextStyle={{
+          left: {
+            color: theme.textSecondary,
+            fontSize: 11,
+          },
+          right: {
+            color: colorScheme === "dark" ? "#A8C7FF" : Colors.muted,
+            fontSize: 11,
+            fontWeight: "500",
+          },
         }}
       />
     </View>

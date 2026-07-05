@@ -86,16 +86,26 @@ export default function SettingsHubScreen() {
   return (
     <ScrollView
       style={[styles.screen, { backgroundColor: theme.background }]}
-      contentContainerStyle={[
-        styles.content,
-        { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 100 },
-      ]}
+      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}
+      stickyHeaderIndices={[0]}
       showsVerticalScrollIndicator={false}
     >
-      <ThemedText type="title" style={styles.title}>
-        我的
-      </ThemedText>
+      <View
+        style={[
+          styles.stickyHeader,
+          {
+            paddingTop: insets.top + 16,
+            backgroundColor: theme.background,
+            borderBottomColor: theme.border,
+          },
+        ]}
+      >
+        <ThemedText type="title" style={styles.title}>
+          我的
+        </ThemedText>
+      </View>
 
+      <View style={styles.body}>
       <Pressable
         accessibilityRole="button"
         onPress={() => router.push("/(tabs)/settings/profile")}
@@ -218,6 +228,7 @@ export default function SettingsHubScreen() {
           <ThemedText style={styles.logoutText}>退出登录</ThemedText>
         </Pressable>
       </View>
+      </View>
     </ScrollView>
   );
 }
@@ -227,12 +238,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
+    flexGrow: 1,
+  },
+  stickyHeader: {
     paddingHorizontal: 20,
+    paddingBottom: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  body: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
     gap: 16,
   },
   title: {
     fontSize: 32,
-    marginBottom: 4,
   },
   profileCard: {
     flexDirection: "row",

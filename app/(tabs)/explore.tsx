@@ -12,6 +12,7 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   ActivityIndicator,
   ImageBackground,
+  Platform,
   Pressable,
   StyleSheet,
   View,
@@ -293,7 +294,8 @@ export default function TabTwoScreen() {
           shouldUpdateMessage={shouldUpdateMessage}
           listViewProps={{
             contentContainerStyle: listBottomPadding,
-            keyboardShouldPersistTaps: "handled",
+            keyboardShouldPersistTaps: "never",
+            keyboardDismissMode: Platform.OS === "ios" ? "interactive" : "on-drag",
             extraData: messages,
           }}
           renderSystemMessage={(props) => (

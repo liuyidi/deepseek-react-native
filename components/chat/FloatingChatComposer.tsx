@@ -57,8 +57,16 @@ export function FloatingChatComposer({
 }: FloatingChatComposerProps) {
   const tabBarHeight = useBottomTabBarHeight();
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [inputContentHeight, setInputContentHeight] = useState(22);
   const hasText = Boolean(text.trim()) && !disabled;
   const composerBorder = colorScheme === "dark" ? "#48484A" : "#E4E4E7";
+  const isSingleLineInput = inputContentHeight <= 24;
+
+  useEffect(() => {
+    if (!text) {
+      setInputContentHeight(22);
+    }
+  }, [text]);
 
   useEffect(() => {
     const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
@@ -80,10 +88,11 @@ export function FloatingChatComposer({
     };
   }, []);
 
+  const idleBottomOffset =
+    Platform.OS === "ios" ? tabBarHeight + FLOATING_TAB_GAP : FLOATING_TAB_GAP;
+
   const bottomOffset =
-    keyboardHeight > 0
-      ? keyboardHeight + FLOATING_TAB_GAP
-      : tabBarHeight + FLOATING_TAB_GAP;
+    keyboardHeight > 0 ? keyboardHeight + FLOATING_TAB_GAP : idleBottomOffset;
 
   const handleSend = useCallback(() => {
     if (hasText) {
@@ -99,6 +108,7 @@ export function FloatingChatComposer({
       <View
         style={[
           styles.card,
+          isSingleLineInput ? styles.cardSingleLine : styles.cardMultiLine,
           colorScheme === "dark" ? styles.shadowDark : styles.shadowLight,
           { backgroundColor: theme.card, borderColor: theme.border },
         ]}
@@ -113,10 +123,15 @@ export function FloatingChatComposer({
           selectionColor={Colors.primary}
           multiline
           maxLength={maxLength}
+          scrollEnabled={!isSingleLineInput}
+          onContentSizeChange={(event) => {
+            setInputContentHeight(event.nativeEvent.contentSize.height);
+          }}
           style={[
             styles.input,
             { color: theme.text },
             Platform.OS === "ios" ? styles.inputIos : undefined,
+            Platform.OS === "ios" && isSingleLineInput ? styles.inputIosSingleLine : undefined,
           ]}
         />
         <View style={styles.sendContainer}>
@@ -192,13 +207,19 @@ const styles = StyleSheet.create({
   },
   card: {
     flexDirection: "row",
-    alignItems: "flex-end",
     borderRadius: 28,
     borderWidth: StyleSheet.hairlineWidth,
     minHeight: FLOATING_COMPOSER_HEIGHT,
     paddingHorizontal: 8,
-    paddingVertical: 6,
     gap: 6,
+  },
+  cardSingleLine: {
+    alignItems: "center",
+    paddingVertical: 8,
+  },
+  cardMultiLine: {
+    alignItems: "flex-end",
+    paddingVertical: 6,
   },
   shadowLight: Platform.select({
     ios: {
@@ -224,20 +245,23 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
     marginRight: 4,
-    marginTop: Platform.select({ ios: 10, default: 8 }),
-    marginBottom: Platform.select({ ios: 10, default: 8 }),
     fontSize: 16,
     lineHeight: 22,
     maxHeight: FLOATING_COMPOSER_MAX_HEIGHT,
+    paddingVertical: 0,
     backgroundColor: "transparent",
   },
   inputIos: {
     fontWeight: "400",
+    paddingTop: 0,
+    paddingBottom: 0,
+  },
+  inputIosSingleLine: {
+    lineHeight: 20,
   },
   sendContainer: {
-    justifyContent: "flex-end",
+    justifyContent: "center",
     marginRight: 4,
-    marginBottom: 6,
   },
   sendButton: {
     width: 36,
