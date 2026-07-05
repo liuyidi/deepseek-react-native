@@ -1,0 +1,26 @@
+app/(tabs)/explore.tsx
+  s_ec0893953fb45d::t_0c09db06897dfe 163-164
+README.md
+  s_ec0893953fb45d::t_8575cdb8502590 1,3,5,7-11,13,15-22,24-32,35-36,40-41,46,48-51,53,56-58,61,63-91,94-120,122-125,127,129,131,133
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.28-trip",
+  "base_commit_sha": "8b2f12b9337c60a6cf70e6c64a9bafba231aaa1a",
+  "prompts": {},
+  "humans": {
+    "h_a1d393e99d7824": {
+      "author": "liuyidi <yidiliu@trip.com>"
+    }
+  },
+  "sessions": {
+    "s_ec0893953fb45d": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "63df07f4-c056-49ad-bfc2-b34c78be47a1",
+        "model": "default"
+      },
+      "human_author": "liuyidi <yidiliu@trip.com>"
+    }
+  }
+}
