@@ -10,9 +10,11 @@ import { SettingsNavRow } from "@/components/settings/SettingsNavRow";
 import { ThemedText } from "@/components/ThemedText";
 import { Colors } from "@/constants/Colors";
 import { useAppearance } from "@/context/AppearanceContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { maskEmail, maskPhone, type AccountInfo, getAccountInfo } from "@/lib/accountConfig";
 import { APPEARANCE_LABELS } from "@/lib/appearanceLabels";
+import { LANGUAGE_LABELS } from "@/lib/languageLabels";
 import { getDeepSeekApiKey, maskApiKey } from "@/lib/deepseekConfig";
 import { logoutUser } from "@/lib/sessionConfig";
 import {
@@ -27,6 +29,7 @@ export default function SettingsHubScreen() {
   const insets = useSafeAreaInsets();
   const theme = useAppTheme();
   const { mode: appearanceMode, setMode } = useAppearance();
+  const { language } = useLanguage();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [account, setAccount] = useState<AccountInfo | null>(null);
   const [apiKeySummary, setApiKeySummary] = useState("未配置");
@@ -65,13 +68,13 @@ export default function SettingsHubScreen() {
     ]);
   };
 
-  const accountSummary = account
-    ? [
-        account.phone ? maskPhone(account.phone) : "未绑定手机",
-        account.wechatBound ? "微信已绑定" : "微信未绑定",
-        account.email ? maskEmail(account.email) : "未设置邮箱",
-      ].join(" · ")
-    : "管理手机号、微信与邮箱";
+  const accountHubValue = account?.phone
+    ? maskPhone(account.phone)
+    : account?.wechatBound
+      ? "微信已绑定"
+      : account?.email
+        ? maskEmail(account.email)
+        : "未绑定";
 
   return (
     <ScrollView
@@ -122,7 +125,6 @@ export default function SettingsHubScreen() {
       <SettingsGroup>
         <SettingsNavRow
           title="外观"
-          subtitle="系统 / 浅色 / 深色"
           value={APPEARANCE_LABELS[appearanceMode]}
           icon="color-palette-outline"
           showDivider={false}
@@ -132,8 +134,18 @@ export default function SettingsHubScreen() {
 
       <SettingsGroup>
         <SettingsNavRow
+          title="语言"
+          value={LANGUAGE_LABELS[language]}
+          icon="language-outline"
+          showDivider={false}
+          onPress={() => router.push("/(tabs)/settings/language")}
+        />
+      </SettingsGroup>
+
+      <SettingsGroup>
+        <SettingsNavRow
           title="账号管理"
-          subtitle={accountSummary}
+          value={accountHubValue}
           icon="person-circle-outline"
           showDivider={false}
           onPress={() => router.push("/(tabs)/settings/account")}
@@ -143,7 +155,6 @@ export default function SettingsHubScreen() {
       <SettingsGroup>
         <SettingsNavRow
           title="API Key"
-          subtitle="DeepSeek 聊天密钥配置"
           value={apiKeySummary}
           icon="key-outline"
           showDivider={false}
@@ -154,7 +165,7 @@ export default function SettingsHubScreen() {
       <SettingsGroup>
         <SettingsNavRow
           title="关于"
-          subtitle={`版本 ${APP_VERSION}`}
+          value={`v${APP_VERSION}`}
           icon="information-circle-outline"
           showDivider={false}
           onPress={() => router.push("/(tabs)/settings/about")}

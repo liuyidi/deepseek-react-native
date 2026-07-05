@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { AppearanceProvider } from '@/context/AppearanceContext';
+import { LanguageProvider } from '@/context/LanguageContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 SplashScreen.preventAutoHideAsync();
@@ -38,7 +39,9 @@ export default function RootLayout() {
 
   return (
     <AppearanceProvider>
-      {loaded ? <RootLayoutNav /> : null}
+      <LanguageProvider>
+        {loaded ? <RootLayoutNav /> : null}
+      </LanguageProvider>
     </AppearanceProvider>
   );
 }

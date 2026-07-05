@@ -30,14 +30,12 @@ export default function AboutSettingsScreen() {
       <SettingsGroup>
         <SettingsNavRow
           title="版本更新"
-          subtitle="检查是否有新版本"
           value={`v${APP_VERSION}`}
           icon="cloud-download-outline"
           onPress={handleCheckUpdate}
         />
         <SettingsNavRow
           title="关于 DeepSeek Chat"
-          subtitle="应用介绍与开源信息"
           icon="information-circle-outline"
           showDivider={false}
           onPress={() => router.push("/(tabs)/settings/about-app")}

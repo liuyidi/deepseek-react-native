@@ -4,14 +4,14 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/components/ThemedText";
 import { Colors } from "@/constants/Colors";
-import { useAppearance } from "@/context/AppearanceContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { useAppTheme } from "@/hooks/useAppTheme";
-import { APPEARANCE_OPTIONS } from "@/lib/appearanceLabels";
+import { LANGUAGE_OPTIONS } from "@/lib/languageLabels";
 
-export default function AppearanceSettingsScreen() {
+export default function LanguageSettingsScreen() {
   const insets = useSafeAreaInsets();
   const theme = useAppTheme();
-  const { mode, setMode } = useAppearance();
+  const { language, setLanguage } = useLanguage();
 
   return (
     <ScrollView
@@ -22,26 +22,22 @@ export default function AppearanceSettingsScreen() {
       ]}
       showsVerticalScrollIndicator={false}
     >
-      <ThemedText type="secondary" style={styles.hint}>
-        选择应用配色方案。系统模式将跟随 iOS / Android 的深浅色设置。
-      </ThemedText>
-
       <View
         style={[
           styles.card,
           { backgroundColor: theme.card, borderColor: theme.border },
         ]}
       >
-        {APPEARANCE_OPTIONS.map((option, index) => {
-          const isSelected = mode === option.value;
-          const isLast = index === APPEARANCE_OPTIONS.length - 1;
+        {LANGUAGE_OPTIONS.map((option, index) => {
+          const isSelected = language === option.value;
+          const isLast = index === LANGUAGE_OPTIONS.length - 1;
 
           return (
             <Pressable
               key={option.value}
               accessibilityRole="button"
               accessibilityState={{ selected: isSelected }}
-              onPress={() => void setMode(option.value)}
+              onPress={() => void setLanguage(option.value)}
               style={({ pressed }) => [
                 styles.optionRow,
                 !isLast && {
@@ -87,10 +83,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    gap: 12,
-  },
-  hint: {
-    lineHeight: 22,
   },
   card: {
     borderRadius: 18,

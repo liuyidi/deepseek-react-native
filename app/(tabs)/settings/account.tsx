@@ -159,7 +159,6 @@ export default function AccountSettingsScreen() {
         <SettingsGroup>
           <SettingsNavRow
             title="注销账号"
-            subtitle="清除本机全部账号数据"
             icon="trash-outline"
             destructive
             showDivider={false}

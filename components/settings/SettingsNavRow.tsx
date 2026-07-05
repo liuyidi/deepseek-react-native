@@ -6,7 +6,6 @@ import { useAppTheme } from "@/hooks/useAppTheme";
 
 type SettingsNavRowProps = {
   title: string;
-  subtitle?: string;
   value?: string;
   icon?: keyof typeof Ionicons.glyphMap;
   showDivider?: boolean;
@@ -16,7 +15,6 @@ type SettingsNavRowProps = {
 
 export function SettingsNavRow({
   title,
-  subtitle,
   value,
   icon,
   showDivider = true,
@@ -32,7 +30,10 @@ export function SettingsNavRow({
       onPress={onPress}
       style={({ pressed }) => [
         styles.row,
-        showDivider && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: theme.border },
+        showDivider && {
+          borderBottomWidth: StyleSheet.hairlineWidth,
+          borderBottomColor: theme.border,
+        },
         pressed && onPress ? styles.pressed : undefined,
       ]}
     >
@@ -45,18 +46,16 @@ export function SettingsNavRow({
           />
         </View>
       ) : null}
-      <View style={styles.content}>
-        <ThemedText
-          type="defaultSemiBold"
-          style={destructive ? styles.destructiveText : undefined}
-        >
-          {title}
-        </ThemedText>
-        {subtitle ? <ThemedText type="secondary">{subtitle}</ThemedText> : null}
-      </View>
+      <ThemedText
+        type="defaultSemiBold"
+        numberOfLines={1}
+        style={[styles.title, destructive ? styles.destructiveText : undefined]}
+      >
+        {title}
+      </ThemedText>
       <View style={styles.trailing}>
         {value ? (
-          <ThemedText type="secondary" style={styles.value}>
+          <ThemedText type="secondary" numberOfLines={1} style={styles.value}>
             {value}
           </ThemedText>
         ) : null}
@@ -74,8 +73,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
     paddingHorizontal: 16,
-    paddingVertical: 14,
-    minHeight: 56,
+    paddingVertical: 12,
+    minHeight: 48,
   },
   iconWrap: {
     width: 34,
@@ -84,17 +83,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  content: {
+  title: {
     flex: 1,
-    gap: 2,
+    fontSize: 16,
   },
   trailing: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    maxWidth: "42%",
+    gap: 6,
+    flexShrink: 1,
+    maxWidth: "50%",
   },
   value: {
+    flexShrink: 1,
     textAlign: "right",
   },
   destructiveText: {

@@ -19,6 +19,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="profile" options={{ title: "个人信息" }} />
       <Stack.Screen name="appearance" options={{ title: "外观" }} />
+      <Stack.Screen name="language" options={{ title: "语言" }} />
       <Stack.Screen name="account" options={{ title: "账号管理" }} />
       <Stack.Screen name="api-key" options={{ title: "API Key" }} />
       <Stack.Screen name="about" options={{ title: "关于" }} />
