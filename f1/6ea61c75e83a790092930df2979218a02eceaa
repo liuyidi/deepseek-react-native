@@ -1,0 +1,47 @@
+components/ui/IconSymbol.tsx
+  s_ec0893953fb45d::t_979377d6b07728 14
+app/(tabs)/explore.tsx
+  s_ec0893953fb45d::t_d20bdb5f91c8d6 175-176
+  s_ec0893953fb45d::t_c3607aab73d693 2-3,5-6,9-14,25,30,48-52,62,70,84-91,95-105,130-160,173,194-207,210-228,231-234
+  s_ec0893953fb45d::t_88c1fe6c705b5f 107-114,117-127
+  s_ec0893953fb45d::t_85792c5bb6272b 7
+hooks/useDeepSeekApiKey.ts
+  s_ec0893953fb45d::t_3cafef4db15166 1-32
+.githooks/commit-msg
+  h_a1d393e99d7824 1-3
+package.json
+  s_ec0893953fb45d::t_e9db2b751ea2a2 18,22-38,41-46,51-52,54-55
+app/(tabs)/settings.tsx
+  s_ec0893953fb45d::t_0e92ffe5530ea4 1-296
+app/(tabs)/index.tsx
+  s_ec0893953fb45d::t_3e7eaa4315fb04 158-159
+  s_ec0893953fb45d::t_3bac9d2651ab83 1-10,12,14-39,41-50,52,56,60-61,63-69,71-81,83-99,101-122,124-134,148-156,160-162,167-181,184,186-189,191-216,218-312
+  s_ec0893953fb45d::t_e1958bc9a23ed8 40,55,57
+  s_ec0893953fb45d::t_d53abfdabb536a 51,53-54
+  s_ec0893953fb45d::t_39a6ce3732b821 135-147
+lib/deepseekConfig.ts
+  s_ec0893953fb45d::t_ba8c1855c17e5f 1-30
+app/(tabs)/_layout.tsx
+  s_ec0893953fb45d::t_99d3241414cc9c 43-49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.28-trip",
+  "base_commit_sha": "f16ea61c75e83a790092930df2979218a02eceaa",
+  "prompts": {},
+  "humans": {
+    "h_a1d393e99d7824": {
+      "author": "liuyidi <yidiliu@trip.com>"
+    }
+  },
+  "sessions": {
+    "s_ec0893953fb45d": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "63df07f4-c056-49ad-bfc2-b34c78be47a1",
+        "model": "default"
+      },
+      "human_author": "liuyidi <yidiliu@trip.com>"
+    }
+  }
+}
