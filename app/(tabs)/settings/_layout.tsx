@@ -22,6 +22,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="language" options={{ title: "语言" }} />
       <Stack.Screen name="account" options={{ title: "账号管理" }} />
       <Stack.Screen name="api-key" options={{ title: "API Key" }} />
+      <Stack.Screen name="usage" options={{ title: "Token 用量" }} />
       <Stack.Screen name="about" options={{ title: "关于" }} />
       <Stack.Screen name="about-app" options={{ title: "关于 DeepSeek Chat" }} />
     </Stack>

@@ -16,6 +16,7 @@ import { maskEmail, maskPhone, type AccountInfo, getAccountInfo } from "@/lib/ac
 import { APPEARANCE_LABELS } from "@/lib/appearanceLabels";
 import { LANGUAGE_LABELS } from "@/lib/languageLabels";
 import { getDeepSeekApiKey, maskApiKey } from "@/lib/deepseekConfig";
+import { formatTokenCount, getTokenUsageStats } from "@/lib/tokenUsageConfig";
 import { logoutUser } from "@/lib/sessionConfig";
 import {
   getProfileInitial,
@@ -33,16 +34,19 @@ export default function SettingsHubScreen() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [account, setAccount] = useState<AccountInfo | null>(null);
   const [apiKeySummary, setApiKeySummary] = useState("未配置");
+  const [usageSummary, setUsageSummary] = useState("0");
 
   const loadPreviewData = useCallback(async () => {
-    const [nextProfile, nextAccount, apiKey] = await Promise.all([
+    const [nextProfile, nextAccount, apiKey, usageStats] = await Promise.all([
       getUserProfile(),
       getAccountInfo(),
       getDeepSeekApiKey(),
+      getTokenUsageStats(),
     ]);
     setProfile(nextProfile);
     setAccount(nextAccount);
     setApiKeySummary(apiKey ? maskApiKey(apiKey) : "未配置");
+    setUsageSummary(formatTokenCount(usageStats.totalTokens));
   }, []);
 
   useFocusEffect(
@@ -159,6 +163,16 @@ export default function SettingsHubScreen() {
           icon="key-outline"
           showDivider={false}
           onPress={() => router.push("/(tabs)/settings/api-key")}
+        />
+      </SettingsGroup>
+
+      <SettingsGroup>
+        <SettingsNavRow
+          title="Token 用量"
+          value={usageSummary}
+          icon="analytics-outline"
+          showDivider={false}
+          onPress={() => router.push("/(tabs)/settings/usage")}
         />
       </SettingsGroup>
 

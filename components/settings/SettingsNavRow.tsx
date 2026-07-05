@@ -23,10 +23,39 @@ export function SettingsNavRow({
 }: SettingsNavRowProps) {
   const theme = useAppTheme();
 
+  if (!onPress) {
+    return (
+      <View
+        style={[
+          styles.row,
+          showDivider && {
+            borderBottomWidth: StyleSheet.hairlineWidth,
+            borderBottomColor: theme.border,
+          },
+        ]}
+      >
+        {icon ? (
+          <View style={[styles.iconWrap, { backgroundColor: theme.background }]}>
+            <Ionicons name={icon} size={18} color={theme.textSecondary} />
+          </View>
+        ) : null}
+        <ThemedText type="defaultSemiBold" numberOfLines={1} style={styles.title}>
+          {title}
+        </ThemedText>
+        <View style={styles.trailing}>
+          {value ? (
+            <ThemedText type="secondary" numberOfLines={1} style={styles.value}>
+              {value}
+            </ThemedText>
+          ) : null}
+        </View>
+      </View>
+    );
+  }
+
   return (
     <Pressable
       accessibilityRole="button"
-      disabled={!onPress}
       onPress={onPress}
       style={({ pressed }) => [
         styles.row,
@@ -59,9 +88,7 @@ export function SettingsNavRow({
             {value}
           </ThemedText>
         ) : null}
-        {onPress ? (
-          <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
-        ) : null}
+        <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
       </View>
     </Pressable>
   );

@@ -1,6 +1,7 @@
 import { Colors } from "@/constants/Colors";
 import { useDeepSeekApiKey } from "@/hooks/useDeepSeekApiKey";
 import { DEEPSEEK_API_URL } from "@/lib/deepseekConfig";
+import { addTokenUsage } from "@/lib/tokenUsageConfig";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import axios from "axios";
@@ -89,6 +90,17 @@ export default function TabTwoScreen() {
       };
 
       setMessages((prevMessages) => GiftedChat.append(prevMessages, [newBotMessage]));
+
+      const usage = response.data.usage as
+        | {
+            prompt_tokens?: number;
+            completion_tokens?: number;
+            total_tokens?: number;
+          }
+        | undefined;
+      if (usage) {
+        void addTokenUsage(usage);
+      }
     } catch (error) {
       console.error("DeepSeek API Error:", error);
       const errorMessage: IMessage = {
