@@ -1,3 +1,5 @@
+import { Ionicons } from "@expo/vector-icons";
+import * as Clipboard from "expo-clipboard";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import {
@@ -30,12 +32,14 @@ export default function ApiKeySettingsScreen() {
   const [savedKey, setSavedKey] = useState<string | null>(null);
   const [draftKey, setDraftKey] = useState("");
   const [isKeyVisible, setIsKeyVisible] = useState(false);
+  const [isSavedKeyVisible, setIsSavedKeyVisible] = useState(false);
   const [isSavingKey, setIsSavingKey] = useState(false);
 
   const loadData = useCallback(async () => {
     const key = await getDeepSeekApiKey();
     setSavedKey(key);
     setDraftKey("");
+    setIsSavedKeyVisible(false);
   }, []);
 
   useFocusEffect(
@@ -60,12 +64,21 @@ export default function ApiKeySettingsScreen() {
       await setDeepSeekApiKey(trimmed);
       setSavedKey(trimmed);
       setDraftKey("");
+      setIsSavedKeyVisible(false);
       Alert.alert("保存成功", "API Key 已保存。");
     } catch {
       Alert.alert("保存失败", "请稍后重试。");
     } finally {
       setIsSavingKey(false);
     }
+  };
+
+  const handleCopyApiKey = async () => {
+    if (!savedKey) {
+      return;
+    }
+    await Clipboard.setStringAsync(savedKey);
+    Alert.alert("已复制", "API Key 已复制到剪贴板。");
   };
 
   const handleClearApiKey = () => {
@@ -78,6 +91,7 @@ export default function ApiKeySettingsScreen() {
           await clearDeepSeekApiKey();
           setSavedKey(null);
           setDraftKey("");
+          setIsSavedKeyVisible(false);
         },
       },
     ]);
@@ -103,11 +117,47 @@ export default function ApiKeySettingsScreen() {
           ]}
         >
           <ThemedText type="defaultSemiBold">DeepSeek API Key</ThemedText>
-          <ThemedText type="secondary">
-            {savedKey
-              ? `已配置 ${maskApiKey(savedKey)}`
-              : "尚未配置，聊天功能需要先设置 API Key"}
-          </ThemedText>
+          {savedKey ? (
+            <View style={styles.savedKeyRow}>
+              <ThemedText
+                type="secondary"
+                style={styles.savedKeyText}
+                numberOfLines={1}
+              >
+                已配置 {isSavedKeyVisible ? savedKey : maskApiKey(savedKey)}
+              </ThemedText>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={isSavedKeyVisible ? "隐藏 API Key" : "显示 API Key"}
+                hitSlop={8}
+                onPress={() => setIsSavedKeyVisible((current) => !current)}
+                style={styles.iconButton}
+              >
+                <Ionicons
+                  name={isSavedKeyVisible ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color={theme.textSecondary}
+                />
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="复制 API Key"
+                hitSlop={8}
+                onPress={() => void handleCopyApiKey()}
+                style={styles.iconButton}
+              >
+                <Ionicons
+                  name="copy-outline"
+                  size={20}
+                  color={theme.textSecondary}
+                />
+              </Pressable>
+            </View>
+          ) : (
+            <ThemedText type="secondary">
+              尚未配置，聊天功能需要先设置 API Key
+            </ThemedText>
+          )}
           <View
             style={[
               styles.inputWrap,
@@ -188,6 +238,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 16,
     gap: 12,
+  },
+  savedKeyRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  savedKeyText: {
+    flex: 1,
+    fontSize: 15,
+  },
+  iconButton: {
+    padding: 6,
   },
   helpCard: {
     borderRadius: 18,
