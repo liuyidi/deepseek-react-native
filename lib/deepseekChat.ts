@@ -3,6 +3,7 @@ import { fetch } from "expo/fetch";
 
 import { DEEPSEEK_API_URL } from "@/lib/deepseekConfig";
 import {
+  isV4Model,
   shouldUseThinking,
   type DeepSeekModelId,
 } from "@/lib/chatPreferencesConfig";
@@ -79,6 +80,9 @@ function buildRequestBody(
   if (useThinking) {
     body.thinking = { type: "enabled" };
     body.reasoning_effort = "high";
+  } else if (isV4Model(model)) {
+    // V4 默认开启思考；关闭时必须显式 disabled，否则仍会返回 reasoning_content
+    body.thinking = { type: "disabled" };
   }
 
   return body;
@@ -182,6 +186,8 @@ export async function streamDeepSeekChat({
   onError,
   signal,
 }: StreamDeepSeekChatOptions): Promise<void> {
+  const useThinking = shouldUseThinking(model, thinkingEnabled);
+
   try {
     const response = await fetch(DEEPSEEK_API_URL, {
       method: "POST",
@@ -209,7 +215,7 @@ export async function streamDeepSeekChat({
         thinkingEnabled,
         signal
       );
-      if (fallback.reasoningContent) {
+      if (fallback.reasoningContent && useThinking) {
         onDelta({ reasoningContent: fallback.reasoningContent });
       }
       if (fallback.content) {
@@ -230,7 +236,7 @@ export async function streamDeepSeekChat({
       if (delta?.content) {
         onDelta({ content: delta.content });
       }
-      if (delta?.reasoning_content) {
+      if (delta?.reasoning_content && useThinking) {
         onDelta({ reasoningContent: delta.reasoning_content });
       }
       if (parsed.usage) {
@@ -254,7 +260,7 @@ export async function streamDeepSeekChat({
         thinkingEnabled,
         signal
       );
-      if (fallback.reasoningContent) {
+      if (fallback.reasoningContent && useThinking) {
         onDelta({ reasoningContent: fallback.reasoningContent });
       }
       if (fallback.content) {

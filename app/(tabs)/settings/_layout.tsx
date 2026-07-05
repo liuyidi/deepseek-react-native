@@ -1,5 +1,6 @@
 import { Stack } from "expo-router";
 
+import { renderSettingsStackHeader } from "@/components/settings/SettingsStackHeader";
 import { useAppTheme } from "@/hooks/useAppTheme";
 
 export default function SettingsLayout() {
@@ -8,11 +9,7 @@ export default function SettingsLayout() {
   return (
     <Stack
       screenOptions={{
-        headerBackTitle: "返回",
-        headerStyle: { backgroundColor: theme.card },
-        headerTintColor: theme.text,
-        headerTitleStyle: { fontWeight: "600" },
-        headerShadowVisible: false,
+        header: renderSettingsStackHeader,
         contentStyle: { backgroundColor: theme.background },
       }}
     >

@@ -26,6 +26,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 import { ChatBubble } from "@/components/chat/ChatBubble";
+import { ChatPreferencesBar } from "@/components/chat/ChatPreferencesBar";
 import {
   FloatingChatComposer,
   useChatListBottomPadding,
@@ -284,6 +285,7 @@ export default function TabTwoScreen() {
       ]}
     >
       <View style={styles.chatContainer}>
+        <ChatPreferencesBar />
         <GiftedChat
           messages={messages}
           onSend={onSend}

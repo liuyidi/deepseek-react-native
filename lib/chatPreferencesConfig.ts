@@ -51,3 +51,8 @@ export function shouldUseThinking(
 ): boolean {
   return thinkingEnabled || model === "deepseek-reasoner";
 }
+
+/** V4 系列默认开启思考，需显式传 disabled 才能关闭 */
+export function isV4Model(model: DeepSeekModelId): boolean {
+  return model === "deepseek-v4-flash" || model === "deepseek-v4-pro";
+}

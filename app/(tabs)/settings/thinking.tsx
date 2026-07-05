@@ -28,8 +28,8 @@ export default function ThinkingSettingsScreen() {
       showsVerticalScrollIndicator={false}
     >
       <ThemedText type="secondary" style={styles.hint}>
-        开启后，模型会先输出思考过程（reasoning），再给出最终回答。Reasoner
-        模型会始终启用思考模式。
+        开启后，模型会先输出思考过程，再给出最终回答。V4 模型默认开启思考，此处关闭后将不再展示思考过程。Reasoner
+        模型始终开启思考模式。
       </ThemedText>
 
       {isReasonerModel ? (
