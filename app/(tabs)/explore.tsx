@@ -1,8 +1,17 @@
 import { Colors } from "@/constants/Colors";
+import { useDeepSeekApiKey } from "@/hooks/useDeepSeekApiKey";
+import { DEEPSEEK_API_URL } from "@/lib/deepseekConfig";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState, useCallback, useEffect, useRef } from "react";
-import { ImageBackground, StyleSheet } from "react-native";
-import { Swipeable } from "react-native-gesture-handler";
+import { router } from "expo-router";
+import axios from "axios";
+import React, { useState, useCallback, useEffect } from "react";
+import {
+  ActivityIndicator,
+  ImageBackground,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 import {
   GiftedChat,
   Bubble,
@@ -12,17 +21,13 @@ import {
   IMessage,
 } from "react-native-gifted-chat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import axios from "axios"; // Import Axios for API calls
 
-const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
-const API_KEY = "YOUR_DEEPSEEK_API_KEY"; // Replace with your DeepSeek API key
+import { ThemedText } from "@/components/ThemedText";
 
 export default function TabTwoScreen() {
   const [messages, setMessages] = useState<IMessage[]>([]);
-  const [text, setText] = useState("");
   const insets = useSafeAreaInsets();
-  const [replyMessage, setReplyMessage] = useState<IMessage | null>(null);
-  const swipeableRowRef = useRef<Swipeable | null>(null);
+  const { apiKey, hasApiKey, isLoading } = useDeepSeekApiKey();
 
   useEffect(() => {
     setMessages([
@@ -40,7 +45,11 @@ export default function TabTwoScreen() {
     ]);
   }, []);
 
-  const sendMessageToDeepSeek = async (userMessage: any) => {
+  const sendMessageToDeepSeek = async (userMessage: string) => {
+    if (!apiKey) {
+      return;
+    }
+
     try {
       const response = await axios.post(
         DEEPSEEK_API_URL,
@@ -50,7 +59,7 @@ export default function TabTwoScreen() {
         },
         {
           headers: {
-            Authorization: `Bearer ${API_KEY}`,
+            Authorization: `Bearer ${apiKey}`,
             "Content-Type": "application/json",
           },
         }
@@ -58,7 +67,7 @@ export default function TabTwoScreen() {
 
       const botReply = response.data.choices[0].message.content;
 
-      const newBotMessage = {
+      const newBotMessage: IMessage = {
         _id: Math.random().toString(36).substring(7),
         text: botReply,
         createdAt: new Date(),
@@ -72,30 +81,82 @@ export default function TabTwoScreen() {
       setMessages((prevMessages) => GiftedChat.append(prevMessages, [newBotMessage]));
     } catch (error) {
       console.error("DeepSeek API Error:", error);
+      const errorMessage: IMessage = {
+        _id: Math.random().toString(36).substring(7),
+        system: true,
+        text: "请求失败，请检查 API Key 或账户余额后重试。",
+        createdAt: new Date(),
+        user: { _id: 0, name: "System" },
+      };
+      setMessages((prevMessages) => GiftedChat.append(prevMessages, [errorMessage]));
     }
   };
 
-  const onSend = useCallback((messages = []) => {
-    setMessages((prevMessages) => GiftedChat.append(prevMessages, messages));
-    sendMessageToDeepSeek(messages[0].text); // Send message to DeepSeek API
-  }, []);
-
-  const renderInputToolbar = (props) => (
-    <InputToolbar
-      {...props}
-      containerStyle={{ backgroundColor: Colors.background }}
-    />
+  const onSend = useCallback(
+    (newMessages: IMessage[] = []) => {
+      if (!hasApiKey) {
+        router.push("/(tabs)/settings");
+        return;
+      }
+      setMessages((prevMessages) => GiftedChat.append(prevMessages, newMessages));
+      sendMessageToDeepSeek(newMessages[0]?.text ?? "");
+    },
+    [hasApiKey, apiKey]
   );
 
-  const renderBubble = (props) => (
-    <Bubble
-      {...props}
-      wrapperStyle={{
-        right: { backgroundColor: "#dbffcb" },
-        left: { backgroundColor: "#ffffff" },
-      }}
-    />
+  const renderInputToolbar = useCallback(
+    (props: React.ComponentProps<typeof InputToolbar>) => (
+      <InputToolbar
+        {...props}
+        containerStyle={{ backgroundColor: Colors.background }}
+      />
+    ),
+    []
   );
+
+  const renderBubble = useCallback(
+    (props: React.ComponentProps<typeof Bubble>) => (
+      <Bubble
+        {...props}
+        wrapperStyle={{
+          right: { backgroundColor: "#dbffcb" },
+          left: { backgroundColor: "#ffffff" },
+        }}
+      />
+    ),
+    []
+  );
+
+  if (isLoading) {
+    return (
+      <View style={[styles.centered, { paddingTop: insets.top }]}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+      </View>
+    );
+  }
+
+  if (!hasApiKey) {
+    return (
+      <View style={[styles.centered, { paddingTop: insets.top, paddingBottom: insets.bottom + 100 }]}>
+        <View style={styles.emptyCard}>
+          <Ionicons name="key-outline" size={40} color={Colors.primary} />
+          <ThemedText type="defaultSemiBold" style={styles.emptyTitle}>
+            尚未配置 API Key
+          </ThemedText>
+          <ThemedText style={styles.emptyText}>
+            请先在设置页保存 DeepSeek API Key，再开始聊天。
+          </ThemedText>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push("/(tabs)/settings")}
+            style={({ pressed }) => [styles.settingsButton, pressed && styles.buttonPressed]}
+          >
+            <ThemedText style={styles.settingsButtonText}>前往设置</ThemedText>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <ImageBackground
@@ -109,9 +170,10 @@ export default function TabTwoScreen() {
     >
       <GiftedChat
         messages={messages}
-        onSend={(messages) => onSend(messages)}
-        onInputTextChanged={setText}
+        onSend={onSend}
         user={{ _id: 1 }}
+        maxInputLength={1000}
+        textInputProps={{ maxLength: 1000 }}
         renderSystemMessage={(props) => (
           <SystemMessage {...props} textStyle={{ color: Colors.gray }} />
         )}
@@ -129,13 +191,44 @@ export default function TabTwoScreen() {
 }
 
 const styles = StyleSheet.create({
-  composer: {
-    borderRadius: 18,
+  centered: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+  emptyCard: {
+    width: "100%",
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 24,
+    alignItems: "center",
+    gap: 12,
     borderWidth: 1,
     borderColor: Colors.lightGray,
-    paddingHorizontal: 10,
-    paddingTop: 8,
+  },
+  emptyTitle: {
+    fontSize: 20,
+  },
+  emptyText: {
+    color: Colors.gray,
+    textAlign: "center",
+    lineHeight: 22,
+  },
+  settingsButton: {
+    marginTop: 8,
+    backgroundColor: Colors.primary,
+    borderRadius: 14,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+  },
+  settingsButtonText: {
+    color: "#fff",
+    fontWeight: "700",
     fontSize: 16,
-    marginVertical: 4,
+  },
+  buttonPressed: {
+    opacity: 0.88,
   },
 });
