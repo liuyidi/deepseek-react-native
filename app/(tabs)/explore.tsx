@@ -13,28 +13,38 @@ import {
   View,
 } from "react-native";
 import {
-  GiftedChat,
   Bubble,
-  InputToolbar,
-  Send,
   SystemMessage,
   IMessage,
+  GiftedChat,
 } from "react-native-gifted-chat";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
+import {
+  FloatingChatComposer,
+  useChatListBottomPadding,
+} from "@/components/chat/FloatingChatComposer";
 import { ThemedText } from "@/components/ThemedText";
+import { useAppTheme } from "@/hooks/useAppTheme";
+import { useColorScheme } from "@/hooks/useColorScheme";
 
 export default function TabTwoScreen() {
   const [messages, setMessages] = useState<IMessage[]>([]);
+  const [composerText, setComposerText] = useState("");
   const insets = useSafeAreaInsets();
+  const theme = useAppTheme();
+  const colorScheme = useColorScheme() ?? "light";
   const { apiKey, hasApiKey, isLoading } = useDeepSeekApiKey();
+  const tabBarHeight = useBottomTabBarHeight();
+  const listBottomPadding = useChatListBottomPadding(tabBarHeight);
 
   useEffect(() => {
     setMessages([
       {
         _id: 0,
         system: true,
-        text: "Type your question or share what’s on your mind…",
+        text: "输入你的问题，或分享你想聊的话题…",
         createdAt: new Date(),
         user: {
           _id: 0,
@@ -95,7 +105,7 @@ export default function TabTwoScreen() {
   const onSend = useCallback(
     (newMessages: IMessage[] = []) => {
       if (!hasApiKey) {
-        router.push("/(tabs)/settings");
+        router.push("/(tabs)/settings/api-key");
         return;
       }
       setMessages((prevMessages) => GiftedChat.append(prevMessages, newMessages));
@@ -104,32 +114,55 @@ export default function TabTwoScreen() {
     [hasApiKey, apiKey]
   );
 
-  const renderInputToolbar = useCallback(
-    (props: React.ComponentProps<typeof InputToolbar>) => (
-      <InputToolbar
-        {...props}
-        containerStyle={{ backgroundColor: Colors.background }}
-      />
-    ),
-    []
-  );
+  const handleComposerSend = useCallback(() => {
+    const trimmed = composerText.trim();
+    if (!trimmed) {
+      return;
+    }
+    onSend([
+      {
+        _id: Math.random().toString(36).substring(7),
+        text: trimmed,
+        createdAt: new Date(),
+        user: { _id: 1 },
+      },
+    ]);
+    setComposerText("");
+  }, [composerText, onSend]);
 
   const renderBubble = useCallback(
     (props: React.ComponentProps<typeof Bubble>) => (
       <Bubble
         {...props}
         wrapperStyle={{
-          right: { backgroundColor: "#dbffcb" },
-          left: { backgroundColor: "#ffffff" },
+          right: {
+            backgroundColor: colorScheme === "dark" ? "#1E3A5F" : "#E8F0FF",
+            borderRadius: 18,
+          },
+          left: {
+            backgroundColor: theme.card,
+            borderRadius: 18,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: theme.border,
+          },
+        }}
+        textStyle={{
+          right: { color: colorScheme === "dark" ? "#EBEBF5" : "#1C1C1E" },
+          left: { color: theme.text },
         }}
       />
     ),
-    []
+    [colorScheme, theme.border, theme.card, theme.text]
   );
 
   if (isLoading) {
     return (
-      <View style={[styles.centered, { paddingTop: insets.top }]}>
+      <View
+        style={[
+          styles.centered,
+          { paddingTop: insets.top, backgroundColor: theme.background },
+        ]}
+      >
         <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
@@ -137,21 +170,35 @@ export default function TabTwoScreen() {
 
   if (!hasApiKey) {
     return (
-      <View style={[styles.centered, { paddingTop: insets.top, paddingBottom: insets.bottom + 100 }]}>
-        <View style={styles.emptyCard}>
+      <View
+        style={[
+          styles.centered,
+          {
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom + 100,
+            backgroundColor: theme.background,
+          },
+        ]}
+      >
+        <View
+          style={[
+            styles.emptyCard,
+            { backgroundColor: theme.card, borderColor: theme.border },
+          ]}
+        >
           <Ionicons name="key-outline" size={40} color={Colors.primary} />
           <ThemedText type="defaultSemiBold" style={styles.emptyTitle}>
             尚未配置 API Key
           </ThemedText>
-          <ThemedText style={styles.emptyText}>
-            请先在设置页保存 DeepSeek API Key，再开始聊天。
+          <ThemedText type="secondary" style={styles.emptyText}>
+            请先在「我的」页面配置 DeepSeek API Key，再开始聊天。
           </ThemedText>
           <Pressable
             accessibilityRole="button"
-            onPress={() => router.push("/(tabs)/settings")}
+            onPress={() => router.push("/(tabs)/settings/api-key")}
             style={({ pressed }) => [styles.settingsButton, pressed && styles.buttonPressed]}
           >
-            <ThemedText style={styles.settingsButtonText}>前往设置</ThemedText>
+            <ThemedText style={styles.settingsButtonText}>配置 API Key</ThemedText>
           </Pressable>
         </View>
       </View>
@@ -162,60 +209,68 @@ export default function TabTwoScreen() {
     <ImageBackground
       source={require("@/assets/images/chat-bg.png")}
       resizeMode="cover"
-      style={{
-        flex: 1,
-        backgroundColor: Colors.background,
-        marginBottom: 90,
-        marginTop: insets.top,
-      }}
+      style={[
+        styles.chatScreen,
+        {
+          backgroundColor: theme.background,
+          paddingTop: insets.top,
+        },
+      ]}
     >
-      <GiftedChat
-        messages={messages}
-        onSend={onSend}
-        user={{ _id: 1 }}
-        maxInputLength={1000}
-        textInputProps={{ maxLength: 1000 }}
-        renderSystemMessage={(props) => (
-          <SystemMessage {...props} textStyle={{ color: Colors.gray }} />
-        )}
-        bottomOffset={insets.bottom}
-        renderBubble={renderBubble}
-        renderInputToolbar={renderInputToolbar}
-        renderSend={(props) => (
-          <Send {...props}>
-            <Ionicons name="send" color={Colors.primary} size={28} />
-          </Send>
-        )}
-      />
+      <View style={styles.chatContainer}>
+        <GiftedChat
+          messages={messages}
+          onSend={onSend}
+          user={{ _id: 1 }}
+          isKeyboardInternallyHandled={false}
+          renderInputToolbar={() => null}
+          listViewProps={{
+            contentContainerStyle: listBottomPadding,
+            keyboardShouldPersistTaps: "handled",
+          }}
+          renderSystemMessage={(props) => (
+            <SystemMessage {...props} textStyle={{ color: theme.textSecondary }} />
+          )}
+          renderBubble={renderBubble}
+        />
+        <FloatingChatComposer
+          text={composerText}
+          onChangeText={setComposerText}
+          onSend={handleComposerSend}
+          theme={theme}
+          colorScheme={colorScheme}
+        />
+      </View>
     </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  chatScreen: {
+    flex: 1,
+  },
+  chatContainer: {
+    flex: 1,
+  },
   centered: {
     flex: 1,
-    backgroundColor: Colors.background,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 24,
   },
   emptyCard: {
     width: "100%",
-    backgroundColor: "#fff",
     borderRadius: 20,
     padding: 24,
     alignItems: "center",
     gap: 12,
     borderWidth: 1,
-    borderColor: Colors.lightGray,
   },
   emptyTitle: {
     fontSize: 20,
   },
   emptyText: {
-    color: Colors.gray,
     textAlign: "center",
-    lineHeight: 22,
   },
   settingsButton: {
     marginTop: 8,

@@ -1,1 +1,5 @@
-export { useColorScheme } from 'react-native';
+import { useAppearance } from "@/context/AppearanceContext";
+
+export function useColorScheme() {
+  return useAppearance().colorScheme;
+}

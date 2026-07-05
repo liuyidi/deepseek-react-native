@@ -1,21 +1,21 @@
-import { useEffect, useState } from 'react';
-import { useColorScheme as useRNColorScheme } from 'react-native';
+import { useEffect, useState } from "react";
+
+import { useAppearance } from "@/context/AppearanceContext";
 
 /**
- * To support static rendering, this value needs to be re-calculated on the client side for web
+ * Web 静态渲染需等客户端 hydration 后再应用外观偏好。
  */
 export function useColorScheme() {
+  const { colorScheme } = useAppearance();
   const [hasHydrated, setHasHydrated] = useState(false);
 
   useEffect(() => {
     setHasHydrated(true);
   }, []);
 
-  const colorScheme = useRNColorScheme();
-
-  if (hasHydrated) {
-    return colorScheme;
+  if (!hasHydrated) {
+    return "light";
   }
 
-  return 'light';
+  return colorScheme;
 }

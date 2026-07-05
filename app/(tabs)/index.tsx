@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ExternalLink } from "@/components/ExternalLink";
 import { ThemedText } from "@/components/ThemedText";
 import { Colors } from "@/constants/Colors";
+import { useAppTheme } from "@/hooks/useAppTheme";
 
 const FEATURES = [
   {
@@ -48,20 +49,21 @@ const SETUP_STEPS = [
   },
   {
     step: "03",
-    title: "在设置页保存密钥",
+    title: "在「我的」保存密钥",
     description:
-      "打开底部 Settings 标签页，粘贴 API Key 并保存。密钥仅存储在本机。",
-    linkLabel: "前往设置页",
-    openSettings: true,
+      "打开底部「我的」标签页，进入 API Key 配置并保存。密钥仅存储在本机。",
+    linkLabel: "前往配置",
+    openApiKey: true,
   },
 ] as const;
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const theme = useAppTheme();
 
   return (
     <ScrollView
-      style={styles.screen}
+      style={[styles.screen, { backgroundColor: theme.background }]}
       contentContainerStyle={[
         styles.content,
         { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 100 },
@@ -100,7 +102,13 @@ export default function HomeScreen() {
         </ThemedText>
         <View style={styles.featureGrid}>
           {FEATURES.map((feature) => (
-            <View key={feature.title} style={styles.featureCard}>
+            <View
+              key={feature.title}
+              style={[
+                styles.featureCard,
+                { backgroundColor: theme.card, borderColor: theme.border },
+              ]}
+            >
               <View style={styles.featureIconWrap}>
                 <Ionicons
                   name={feature.icon}
@@ -109,9 +117,7 @@ export default function HomeScreen() {
                 />
               </View>
               <ThemedText type="defaultSemiBold">{feature.title}</ThemedText>
-              <ThemedText style={styles.featureDescription}>
-                {feature.description}
-              </ThemedText>
+              <ThemedText type="secondary">{feature.description}</ThemedText>
             </View>
           ))}
         </View>
@@ -122,25 +128,36 @@ export default function HomeScreen() {
           快速上手
         </ThemedText>
         {SETUP_STEPS.map((item) => (
-          <View key={item.step} style={styles.stepCard}>
+          <View
+            key={item.step}
+            style={[
+              styles.stepCard,
+              { backgroundColor: theme.card, borderColor: theme.border },
+            ]}
+          >
             <View style={styles.stepHeader}>
-              <View style={styles.stepNumber}>
+              <View
+                style={[
+                  styles.stepNumber,
+                  { backgroundColor: theme.background },
+                ]}
+              >
                 <ThemedText style={styles.stepNumberText}>{item.step}</ThemedText>
               </View>
               <ThemedText type="defaultSemiBold" style={styles.stepTitle}>
                 {item.title}
               </ThemedText>
             </View>
-            <ThemedText style={styles.stepDescription}>{item.description}</ThemedText>
+            <ThemedText type="secondary">{item.description}</ThemedText>
             {"externalLink" in item && item.externalLink ? (
               <ExternalLink href={item.externalLink} style={styles.stepLink}>
                 <ThemedText type="link">{item.linkLabel}</ThemedText>
               </ExternalLink>
             ) : null}
-            {"openSettings" in item && item.openSettings ? (
+            {"openApiKey" in item && item.openApiKey ? (
               <Pressable
                 accessibilityRole="button"
-                onPress={() => router.push("/(tabs)/settings")}
+                onPress={() => router.push("/(tabs)/settings/api-key")}
                 style={styles.stepLink}
               >
                 <ThemedText type="link">{item.linkLabel}</ThemedText>
@@ -150,13 +167,18 @@ export default function HomeScreen() {
         ))}
       </View>
 
-      <View style={styles.footerCard}>
+      <View
+        style={[
+          styles.footerCard,
+          { backgroundColor: theme.card, borderColor: theme.border },
+        ]}
+      >
         <ThemedText type="defaultSemiBold">准备好试试了吗？</ThemedText>
-        <ThemedText style={styles.footerText}>
+        <ThemedText type="secondary">
           配置好 API Key 后，切换到 Chat 标签页即可开始对话。
         </ThemedText>
-        <Link href="/(tabs)/settings" style={styles.secondaryLink}>
-          <ThemedText type="link">前往设置页配置 API Key →</ThemedText>
+        <Link href="/(tabs)/settings/api-key" style={styles.secondaryLink}>
+          <ThemedText type="link">前往「我的」配置 API Key →</ThemedText>
         </Link>
       </View>
     </ScrollView>
@@ -166,7 +188,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: Colors.background,
   },
   content: {
     paddingHorizontal: 20,
@@ -239,12 +260,10 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   featureCard: {
-    backgroundColor: "#fff",
     borderRadius: 18,
     padding: 16,
     gap: 8,
     borderWidth: 1,
-    borderColor: Colors.lightGray,
   },
   featureIconWrap: {
     width: 40,
@@ -254,17 +273,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  featureDescription: {
-    color: Colors.gray,
-    lineHeight: 22,
-  },
   stepCard: {
-    backgroundColor: "#fff",
     borderRadius: 18,
     padding: 16,
     gap: 10,
     borderWidth: 1,
-    borderColor: Colors.lightGray,
   },
   stepHeader: {
     flexDirection: "row",
@@ -275,7 +288,6 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 12,
-    backgroundColor: Colors.background,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -288,24 +300,14 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 17,
   },
-  stepDescription: {
-    color: Colors.gray,
-    lineHeight: 22,
-  },
   stepLink: {
     alignSelf: "flex-start",
   },
   footerCard: {
-    backgroundColor: "#fff",
     borderRadius: 18,
     padding: 18,
     gap: 8,
     borderWidth: 1,
-    borderColor: Colors.lightGray,
-  },
-  footerText: {
-    color: Colors.gray,
-    lineHeight: 22,
   },
   secondaryLink: {
     alignSelf: "flex-start",
