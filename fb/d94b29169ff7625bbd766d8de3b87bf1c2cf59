@@ -1,0 +1,65 @@
+lib/modelLabels.ts
+  s_ec0893953fb45d::t_50870790608a4b 1-35
+types/chat.ts
+  s_ec0893953fb45d::t_0bac2860ab4803 1-5
+app/_layout.tsx
+  s_ec0893953fb45d::t_2a894aa35975c2 10
+  s_ec0893953fb45d::t_67c35d9b836803 44-46
+components/chat/FloatingChatComposer.tsx
+  s_ec0893953fb45d::t_9ed405d82d8b28 16,18-19,22-23,25-27,29-32,34,36,147,157,184,231
+  s_ec0893953fb45d::t_917a2628665ac8 143
+  s_ec0893953fb45d::t_d4354be1db0d8a 109-110
+  s_ec0893953fb45d::t_37fa331bc5ea2e 59,63-86,95-96
+  s_ec0893953fb45d::t_d8c326e366762b 46
+  s_ec0893953fb45d::t_679b1c2d4aded5 5,11
+  s_ec0893953fb45d::t_3041b524b70792 56,60
+  s_ec0893953fb45d::t_17df5c469703c9 149-151,153-155,160-182
+app/(tabs)/explore.tsx
+  s_ec0893953fb45d::t_b8b0c6ff6fafb8 4,7,15,19,25,28-34,37,39-40,45,59,65-70,72-74,76-80,82-87,89,92-93,95-105,107-128,130-137,139-149,152,157-165,167,172,184,187-188,190,260,278
+  h_a1d393e99d7824 129,138
+lib/deepseekChat.ts
+  s_ec0893953fb45d::t_88fbf62e7af1b8 36-38,107-108,114,119-120,123,125,140,144-145
+  s_ec0893953fb45d::t_424055499926d2 1-35,39-41,43-44,46-47,58-93,95-101,103-104,124,126,128-138,142-143,147-165
+  h_a1d393e99d7824 42,45,48-57,94,102,105-106,109-113,115-118,121-122,127,139,141,146
+app/(tabs)/settings/_layout.tsx
+  s_ec0893953fb45d::t_1c9ec0839a904f 25-26
+app/(tabs)/settings/model.tsx
+  s_ec0893953fb45d::t_cbaf616007f07b 1-127
+context/ChatPreferencesContext.tsx
+  s_ec0893953fb45d::t_e10ce704501a7c 1-86
+components/settings/SettingsNavRow.tsx
+  s_ec0893953fb45d::t_dde9d230ec2aab 66
+app/(tabs)/settings/index.tsx
+  s_ec0893953fb45d::t_c446e4706e0e73 36
+  s_ec0893953fb45d::t_6ae676e68bb536 12
+  s_ec0893953fb45d::t_e07249ad4e1abb 174-191
+  s_ec0893953fb45d::t_99a194e4cee529 19
+lib/chatPreferencesConfig.ts
+  s_ec0893953fb45d::t_0e47bad5ff2287 1-11,13-53
+  h_a1d393e99d7824 12
+components/chat/ChatBubble.tsx
+  s_ec0893953fb45d::t_1051a4519282fb 1-104
+app/(tabs)/settings/thinking.tsx
+  s_ec0893953fb45d::t_70f45674ec937f 1-153
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.28-trip",
+  "base_commit_sha": "fbd94b29169ff7625bbd766d8de3b87bf1c2cf59",
+  "prompts": {},
+  "humans": {
+    "h_a1d393e99d7824": {
+      "author": "liuyidi <yidiliu@trip.com>"
+    }
+  },
+  "sessions": {
+    "s_ec0893953fb45d": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "63df07f4-c056-49ad-bfc2-b34c78be47a1",
+        "model": "default"
+      },
+      "human_author": "liuyidi <yidiliu@trip.com>"
+    }
+  }
+}
