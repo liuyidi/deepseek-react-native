@@ -160,7 +160,8 @@ export default function TabTwoScreen() {
 
   return (
     <ImageBackground
-      source={require("@/assets/images/pattern.png")}
+      source={require("@/assets/images/chat-bg.png")}
+      resizeMode="cover"
       style={{
         flex: 1,
         backgroundColor: Colors.background,
