@@ -1,0 +1,30 @@
+package.json
+  s_ec0893953fb45d::t_c60cc7e6f29984 2
+  s_ec0893953fb45d::t_5135f93906bd45 3
+app.ts
+  s_ec0893953fb45d::t_af43ef49078a73 1-24
+metro.config.js
+  s_ec0893953fb45d::t_62acdfefce4392 1-13
+app.json
+  s_ec0893953fb45d::t_38f2de46e2e5d0 3-4,8,12-18,21-22
+eas.json
+  s_ec0893953fb45d::t_dacb6791fe63c5 1-30
+index.ts
+  s_ec0893953fb45d::t_c7a2be7e3eeb00 1-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.28-trip",
+  "base_commit_sha": "571559d6aedf552d80f36da945ea6263ae7c3d6b",
+  "prompts": {},
+  "sessions": {
+    "s_ec0893953fb45d": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "63df07f4-c056-49ad-bfc2-b34c78be47a1",
+        "model": "default"
+      },
+      "human_author": "liuyidi <yidiliu@trip.com>"
+    }
+  }
+}
