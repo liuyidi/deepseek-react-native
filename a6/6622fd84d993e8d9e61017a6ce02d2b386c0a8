@@ -1,0 +1,45 @@
+lib/chatPreferencesConfig.ts
+  s_ec0893953fb45d::t_aa54df49ef4b2e 12
+components/chat/ChatBubble.tsx
+  s_ec0893953fb45d::t_0167fc02e93233 11,16,20-21
+  s_ec0893953fb45d::t_a2d58fcdb30a05 22-23
+  s_ec0893953fb45d::t_f958bc20e65889 59-63
+lib/deepseekChat.ts
+  s_ec0893953fb45d::t_67d3afb4b272eb 289-294,300
+  s_ec0893953fb45d::t_491c541d99312f 118,123-125,129
+  s_ec0893953fb45d::t_8831a38cfa2fa8 1-3,38-54,57-59,65-66,69,72,74-101,140-174,193-195,201,205-219,226-228,246-283,310-312
+app/(tabs)/explore.tsx
+  s_ec0893953fb45d::t_7a7d48cf5d96a1 168-169
+  s_ec0893953fb45d::t_df46cc92eced91 202,204-215,218-220
+  s_ec0893953fb45d::t_175d8b7ef1b2d2 293,297
+  s_ec0893953fb45d::t_4be057e7e033ec 113
+  s_ec0893953fb45d::t_0758b396c7da47 123
+  s_ec0893953fb45d::t_2f01ea67cc9885 4-8
+  s_ec0893953fb45d::t_64081c2d67494b 77-79,86-87,92,101,110,121,135-137,165-167,170-173,175-178,181
+  s_ec0893953fb45d::t_43b22cb201c169 131,142
+  s_ec0893953fb45d::t_8e00e6019d6754 19-23
+  s_ec0893953fb45d::t_5059a7297ef442 216-217
+types/chat.ts
+  s_ec0893953fb45d::t_fae2604db988c4 5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.28-trip",
+  "base_commit_sha": "a66622fd84d993e8d9e61017a6ce02d2b386c0a8",
+  "prompts": {},
+  "humans": {
+    "h_a1d393e99d7824": {
+      "author": "liuyidi <yidiliu@trip.com>"
+    }
+  },
+  "sessions": {
+    "s_ec0893953fb45d": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "63df07f4-c056-49ad-bfc2-b34c78be47a1",
+        "model": "default"
+      },
+      "human_author": "liuyidi <yidiliu@trip.com>"
+    }
+  }
+}
