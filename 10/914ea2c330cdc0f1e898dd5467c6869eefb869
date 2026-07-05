@@ -1,0 +1,35 @@
+docs/TODO.md
+  s_ec0893953fb45d::t_c7650b0a82b5be 2,4-7,18-28,30-39,43,48-50,52-57,59-60
+  s_ec0893953fb45d::t_39357dea15c123 1,3,8-17,29,40-42,44-47,51,58
+docs/chat-session-storage.md
+  s_ec0893953fb45d::t_2f22a805979b9e 1-142
+docs/backend-fastapi-railway.md
+  s_ec0893953fb45d::t_fe3cc0a3cf2f45 1-242
+app/(tabs)/settings/api-key.tsx
+  s_ec0893953fb45d::t_590c224ff757bf 42
+  s_ec0893953fb45d::t_f04c9e38d1d5a9 76-83
+  s_ec0893953fb45d::t_882709aaed968a 35
+  s_ec0893953fb45d::t_5818ba29496147 120-160
+  s_ec0893953fb45d::t_698c7be48a53ee 242-253
+  s_ec0893953fb45d::t_b0fa3fa26b3bb3 94
+  s_ec0893953fb45d::t_ebfc98cbcd1208 67
+  s_ec0893953fb45d::t_8464a94fd7a6ae 1-2
+docs/app-release-china.md
+  s_ec0893953fb45d::t_49dd025d640e35 1-134
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.28-trip",
+  "base_commit_sha": "10914ea2c330cdc0f1e898dd5467c6869eefb869",
+  "prompts": {},
+  "sessions": {
+    "s_ec0893953fb45d": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "63df07f4-c056-49ad-bfc2-b34c78be47a1",
+        "model": "default"
+      },
+      "human_author": "liuyidi <yidiliu@trip.com>"
+    }
+  }
+}
