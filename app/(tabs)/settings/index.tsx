@@ -11,6 +11,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { Colors } from "@/constants/Colors";
 import { useChatPreferences } from "@/context/ChatPreferencesContext";
 import { useAppearance } from "@/context/AppearanceContext";
+import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { maskEmail, maskPhone, type AccountInfo, getAccountInfo } from "@/lib/accountConfig";
@@ -19,7 +20,6 @@ import { LANGUAGE_LABELS } from "@/lib/languageLabels";
 import { MODEL_LABELS } from "@/lib/modelLabels";
 import { getDeepSeekApiKey, maskApiKey } from "@/lib/deepseekConfig";
 import { formatTokenCount, getTokenUsageStats } from "@/lib/tokenUsageConfig";
-import { logoutUser } from "@/lib/sessionConfig";
 import {
   getProfileInitial,
   getUserProfile,
@@ -34,6 +34,7 @@ export default function SettingsHubScreen() {
   const { mode: appearanceMode, setMode } = useAppearance();
   const { language } = useLanguage();
   const { model, isThinkingActive } = useChatPreferences();
+  const { user: authUser, logout } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [account, setAccount] = useState<AccountInfo | null>(null);
   const [apiKeySummary, setApiKeySummary] = useState("未配置");
@@ -59,21 +60,27 @@ export default function SettingsHubScreen() {
   );
 
   const handleLogout = () => {
-    Alert.alert("退出登录", "确定退出并清除本机登录状态？", [
+    Alert.alert("退出登录", "确定退出当前账号？", [
       { text: "取消", style: "cancel" },
       {
         text: "退出登录",
         style: "destructive",
         onPress: () => {
-          void logoutUser().then(async () => {
+          void logout().then(async () => {
             await setMode("system");
-            await loadPreviewData();
-            Alert.alert("已退出", "本机登录状态已清除。");
+            router.replace("/(auth)/login");
           });
         },
       },
     ]);
   };
+
+  const profileName = authUser?.nickname ?? profile?.nickname ?? "DeepSeek 用户";
+  const profileBio =
+    authUser?.bio?.trim() ||
+    profile?.bio ||
+    authUser?.email ||
+    "探索 AI 对话的更多可能";
 
   const accountHubValue = account?.phone
     ? maskPhone(account.phone)
@@ -130,10 +137,10 @@ export default function SettingsHubScreen() {
         </View>
         <View style={styles.profileContent}>
           <ThemedText type="defaultSemiBold" style={styles.profileName}>
-            {profile?.nickname ?? "DeepSeek 用户"}
+            {profileName}
           </ThemedText>
           <ThemedText type="secondary" numberOfLines={1}>
-            {profile?.bio ?? "探索 AI 对话的更多可能"}
+            {profileBio}
           </ThemedText>
         </View>
         <Ionicons name="chevron-forward" size={20} color={theme.textSecondary} />

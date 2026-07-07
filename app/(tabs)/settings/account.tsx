@@ -1,4 +1,4 @@
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   Alert,
@@ -12,6 +12,7 @@ import { EditFieldModal } from "@/components/settings/EditFieldModal";
 import { SettingsGroup } from "@/components/settings/SettingsGroup";
 import { SettingsNavRow } from "@/components/settings/SettingsNavRow";
 import { useAppearance } from "@/context/AppearanceContext";
+import { useAuth } from "@/context/AuthContext";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import {
   DEFAULT_ACCOUNT,
@@ -27,6 +28,7 @@ export default function AccountSettingsScreen() {
   const insets = useSafeAreaInsets();
   const theme = useAppTheme();
   const { setMode } = useAppearance();
+  const { logout } = useAuth();
   const [account, setAccount] = useState<AccountInfo>(DEFAULT_ACCOUNT);
   const [editingField, setEditingField] = useState<"phone" | "email" | null>(null);
 
@@ -106,9 +108,9 @@ export default function AccountSettingsScreen() {
           style: "destructive",
           onPress: () => {
             void deleteAccount().then(async () => {
+              await logout();
               await setMode("system");
-              await loadData();
-              Alert.alert("账号已注销", "本机账号数据已全部清除。");
+              router.replace("/(auth)/login");
             });
           },
         },

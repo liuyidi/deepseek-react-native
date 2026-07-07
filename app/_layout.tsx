@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { AppearanceProvider } from '@/context/AppearanceContext';
+import { AuthProvider } from '@/context/AuthContext';
 import { ChatPreferencesProvider } from '@/context/ChatPreferencesContext';
 import { LanguageProvider } from '@/context/LanguageContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -19,6 +20,8 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
@@ -41,9 +44,11 @@ export default function RootLayout() {
   return (
     <AppearanceProvider>
       <LanguageProvider>
-        <ChatPreferencesProvider>
-          {loaded ? <RootLayoutNav /> : null}
-        </ChatPreferencesProvider>
+        <AuthProvider>
+          <ChatPreferencesProvider>
+            {loaded ? <RootLayoutNav /> : null}
+          </ChatPreferencesProvider>
+        </AuthProvider>
       </LanguageProvider>
     </AppearanceProvider>
   );
