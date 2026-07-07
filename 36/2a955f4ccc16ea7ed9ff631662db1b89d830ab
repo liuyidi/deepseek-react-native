@@ -1,0 +1,44 @@
+app.json
+  s_ec0893953fb45d::t_ff4b2bda22af78 5
+  s_ec0893953fb45d::t_0c08b03e300b5c 22
+  s_ec0893953fb45d::t_55c020d83a7b92 14
+app/(tabs)/settings/about-app.tsx
+  s_ec0893953fb45d::t_b2a9755f9cfe34 8,10
+app/(tabs)/settings/about.tsx
+  s_ec0893953fb45d::t_0fe0a4d2d8302d 9
+  s_ec0893953fb45d::t_043079fdddc03d 11
+package.json
+  s_ec0893953fb45d::t_bbfe4e534416f0 4
+  s_ec0893953fb45d::t_aa59dff4ed99ed 13
+android/app/build.gradle
+  s_ec0893953fb45d::t_c4b91024c30285 95-96
+ios/DeepSeekChat/Info.plist
+  s_ec0893953fb45d::t_49d8219d82cdd0 22
+  s_ec0893953fb45d::t_fe0d170f83c748 36
+scripts/bump-version.js
+  s_ec0893953fb45d::t_509026eb91ef1a 1-86
+lib/appVersion.ts
+  s_ec0893953fb45d::t_afb7daaaa9f8f5 1-10
+app/(tabs)/settings/index.tsx
+  s_ec0893953fb45d::t_e825e6fc526b6f 18,29
+scripts/build-android-apk.sh
+  s_ec0893953fb45d::t_cc9b4efb2f013f 7-29,33-35,39-44,47-50,55-60
+  s_ec0893953fb45d::t_f0e7571d240865 75
+  s_ec0893953fb45d::t_b59ce2f6a94e0d 77-78
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.28-trip",
+  "base_commit_sha": "362a955f4ccc16ea7ed9ff631662db1b89d830ab",
+  "prompts": {},
+  "sessions": {
+    "s_ec0893953fb45d": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "63df07f4-c056-49ad-bfc2-b34c78be47a1",
+        "model": "default"
+      },
+      "human_author": "liuyidi <yidiliu@trip.com>"
+    }
+  }
+}
