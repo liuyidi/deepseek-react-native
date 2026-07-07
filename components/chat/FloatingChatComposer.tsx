@@ -36,37 +36,18 @@ function getListPadding(tabBarHeight: number, keyboardHeight: number): number {
   return COMPOSER_OVERLAY_HEIGHT;
 }
 
-type FloatingChatComposerProps = {
-  text: string;
-  onChangeText: (text: string) => void;
-  onSend: () => void;
-  theme: ThemeColors;
-  colorScheme: "light" | "dark";
-  maxLength?: number;
-  disabled?: boolean;
-};
+function getComposerBottomOffset(tabBarHeight: number, keyboardHeight: number): number {
+  const idleBottomOffset =
+    Platform.OS === "ios" ? tabBarHeight + FLOATING_TAB_GAP : FLOATING_TAB_GAP;
+  return keyboardHeight > 0 ? keyboardHeight + FLOATING_TAB_GAP : idleBottomOffset;
+}
 
-export function FloatingChatComposer({
-  text,
-  onChangeText,
-  onSend,
-  theme,
-  colorScheme,
-  maxLength = 1000,
-  disabled = false,
-}: FloatingChatComposerProps) {
-  const tabBarHeight = useBottomTabBarHeight();
+function getScrollToBottomButtonBottom(tabBarHeight: number, keyboardHeight: number): number {
+  return getComposerBottomOffset(tabBarHeight, keyboardHeight) + FLOATING_COMPOSER_HEIGHT + 8;
+}
+
+function useKeyboardHeight() {
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const [inputContentHeight, setInputContentHeight] = useState(22);
-  const hasText = Boolean(text.trim()) && !disabled;
-  const composerBorder = colorScheme === "dark" ? "#48484A" : "#E4E4E7";
-  const isSingleLineInput = inputContentHeight <= 24;
-
-  useEffect(() => {
-    if (!text) {
-      setInputContentHeight(22);
-    }
-  }, [text]);
 
   useEffect(() => {
     const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
@@ -88,11 +69,42 @@ export function FloatingChatComposer({
     };
   }, []);
 
-  const idleBottomOffset =
-    Platform.OS === "ios" ? tabBarHeight + FLOATING_TAB_GAP : FLOATING_TAB_GAP;
+  return keyboardHeight;
+}
 
-  const bottomOffset =
-    keyboardHeight > 0 ? keyboardHeight + FLOATING_TAB_GAP : idleBottomOffset;
+type FloatingChatComposerProps = {
+  text: string;
+  onChangeText: (text: string) => void;
+  onSend: () => void;
+  theme: ThemeColors;
+  colorScheme: "light" | "dark";
+  maxLength?: number;
+  disabled?: boolean;
+};
+
+export function FloatingChatComposer({
+  text,
+  onChangeText,
+  onSend,
+  theme,
+  colorScheme,
+  maxLength = 1000,
+  disabled = false,
+}: FloatingChatComposerProps) {
+  const tabBarHeight = useBottomTabBarHeight();
+  const keyboardHeight = useKeyboardHeight();
+  const [inputContentHeight, setInputContentHeight] = useState(22);
+  const hasText = Boolean(text.trim()) && !disabled;
+  const composerBorder = colorScheme === "dark" ? "#48484A" : "#E4E4E7";
+  const isSingleLineInput = inputContentHeight <= 24;
+
+  useEffect(() => {
+    if (!text) {
+      setInputContentHeight(22);
+    }
+  }, [text]);
+
+  const bottomOffset = getComposerBottomOffset(tabBarHeight, keyboardHeight);
 
   const handleSend = useCallback(() => {
     if (hasText) {
@@ -159,44 +171,20 @@ export function FloatingChatComposer({
   );
 }
 
-/** inverted 列表底部留白（使用 paddingTop） */
+/** 聊天页布局：列表留白 + 回到底部按钮 bottom */
+export function useChatComposerLayout(tabBarHeight: number) {
+  const keyboardHeight = useKeyboardHeight();
+
+  return {
+    listBottomPadding: { paddingTop: getListPadding(tabBarHeight, keyboardHeight) },
+    scrollToBottomBottom: getScrollToBottomButtonBottom(tabBarHeight, keyboardHeight),
+  };
+}
+
+/** @deprecated 使用 useChatComposerLayout */
 export function useChatListBottomPadding(tabBarHeight: number) {
-  const [paddingTop, setPaddingTop] = useState(() =>
-    getListPadding(tabBarHeight, 0)
-  );
-
-  const applyPadding = useCallback(
-    (keyboardHeight: number) => {
-      setPaddingTop(getListPadding(tabBarHeight, keyboardHeight));
-    },
-    [tabBarHeight]
-  );
-
-  useEffect(() => {
-    applyPadding(0);
-  }, [applyPadding]);
-
-  useEffect(() => {
-    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
-    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
-
-    const onShow = (event: KeyboardEvent) => {
-      applyPadding(event.endCoordinates.height);
-    };
-    const onHide = () => {
-      applyPadding(0);
-    };
-
-    const showSub = Keyboard.addListener(showEvent, onShow);
-    const hideSub = Keyboard.addListener(hideEvent, onHide);
-
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-    };
-  }, [applyPadding]);
-
-  return { paddingTop };
+  const { listBottomPadding } = useChatComposerLayout(tabBarHeight);
+  return listBottomPadding;
 }
 
 const styles = StyleSheet.create({

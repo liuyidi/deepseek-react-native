@@ -1,7 +1,12 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
-import { Bubble, type BubbleProps } from "react-native-gifted-chat";
+import {
+  Bubble,
+  type BubbleProps,
+  type RenderMessageTextProps,
+} from "react-native-gifted-chat";
 
+import { ChatMessageText } from "@/components/chat/ChatMessageText";
 import { ThemedText } from "@/components/ThemedText";
 import type { AppChatMessage } from "@/types/chat";
 import { Colors } from "@/constants/Colors";
@@ -22,6 +27,13 @@ export function ChatBubble(props: ChatBubbleProps) {
     isAssistant &&
     Boolean(currentMessage?.isPending) &&
     isStreaming;
+
+  const renderMessageText = useCallback(
+    (messageTextProps: RenderMessageTextProps<AppChatMessage>) => (
+      <ChatMessageText {...messageTextProps} />
+    ),
+    []
+  );
 
   return (
     <View style={styles.wrap}>
@@ -57,6 +69,7 @@ export function ChatBubble(props: ChatBubbleProps) {
       ) : null}
       <Bubble
         {...props}
+        renderMessageText={renderMessageText}
         currentMessage={
           isPendingReply
             ? { ...currentMessage!, text: "正在回复…" }

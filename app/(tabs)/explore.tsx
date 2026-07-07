@@ -29,7 +29,7 @@ import { ChatBubble } from "@/components/chat/ChatBubble";
 import { ChatPreferencesBar } from "@/components/chat/ChatPreferencesBar";
 import {
   FloatingChatComposer,
-  useChatListBottomPadding,
+  useChatComposerLayout,
 } from "@/components/chat/FloatingChatComposer";
 import { ThemedText } from "@/components/ThemedText";
 import { useChatPreferences } from "@/context/ChatPreferencesContext";
@@ -54,7 +54,12 @@ export default function TabTwoScreen() {
   const { apiKey, hasApiKey, isLoading } = useDeepSeekApiKey();
   const { model, thinkingEnabled } = useChatPreferences();
   const tabBarHeight = useBottomTabBarHeight();
-  const listBottomPadding = useChatListBottomPadding(tabBarHeight);
+  const { listBottomPadding, scrollToBottomBottom } = useChatComposerLayout(tabBarHeight);
+
+  const renderScrollToBottom = useCallback(
+    () => <Ionicons name="chevron-down" size={22} color={theme.text} />,
+    [theme.text]
+  );
 
   useEffect(() => {
     setMessages([
@@ -292,6 +297,17 @@ export default function TabTwoScreen() {
           user={{ _id: 1 }}
           isTyping={isStreaming}
           isKeyboardInternallyHandled={false}
+          scrollToBottom
+          scrollToBottomStyle={[
+            styles.scrollToBottomButton,
+            {
+              bottom: scrollToBottomBottom,
+              backgroundColor: theme.card,
+              borderColor: theme.border,
+            },
+            colorScheme === "dark" ? styles.scrollToBottomShadowDark : styles.scrollToBottomShadowLight,
+          ]}
+          scrollToBottomComponent={renderScrollToBottom}
           renderInputToolbar={() => null}
           shouldUpdateMessage={shouldUpdateMessage}
           listViewProps={{
@@ -360,4 +376,35 @@ const styles = StyleSheet.create({
   buttonPressed: {
     opacity: 0.88,
   },
+  scrollToBottomButton: {
+    opacity: 1,
+    right: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: StyleSheet.hairlineWidth,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 999,
+  },
+  scrollToBottomShadowLight: Platform.select({
+    ios: {
+      shadowColor: "#000000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.12,
+      shadowRadius: 8,
+    },
+    android: { elevation: 4 },
+    default: {},
+  }),
+  scrollToBottomShadowDark: Platform.select({
+    ios: {
+      shadowColor: "#000000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.35,
+      shadowRadius: 8,
+    },
+    android: { elevation: 6 },
+    default: {},
+  }),
 });
