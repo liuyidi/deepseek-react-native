@@ -1,0 +1,82 @@
+context/AuthContext.tsx
+  s_ec0893953fb45d::t_c1917f080bca87 24-30
+  s_ec0893953fb45d::t_c961bac8e262d1 37-38,43
+  s_ec0893953fb45d::t_382bceb5bc8bd8 76
+  s_ec0893953fb45d::t_0c9d41121a3872 23
+  s_ec0893953fb45d::t_f7fa7cecad575e 1-22,31-36,39-42,44-75,77-97,99-111,113-128,130,135-166,169-172,174-175,177-188
+  s_ec0893953fb45d::t_2497bd06b1eb92 98
+  s_ec0893953fb45d::t_979a43d8fd21dd 112
+  s_ec0893953fb45d::t_0fea2a7136e012 129,131-134
+  s_ec0893953fb45d::t_eb0513429d7a23 167-168,173,176
+lib/chatApiConfig.ts
+  s_ec0893953fb45d::t_252a1531ec4709 1-30
+app/(auth)/login.tsx
+  s_ec0893953fb45d::t_9ca04153a2df64 26
+  s_ec0893953fb45d::t_91d3170dd2a66d 1
+  s_ec0893953fb45d::t_29461a2569a646 32-35
+  s_ec0893953fb45d::t_04ec57ee974a0a 129-143
+  s_ec0893953fb45d::t_f05d3b24a3a32b 188-195
+  s_ec0893953fb45d::t_fb55d40efd10d9 2-25,27-31,36-128,144-187,196-199
+app/(tabs)/_layout.tsx
+  s_ec0893953fb45d::t_3148f4e92f1051 4
+  s_ec0893953fb45d::t_7fda453e7bc438 1
+  s_ec0893953fb45d::t_71ace75a31dacd 15-16
+  s_ec0893953fb45d::t_0972e5234863f7 3,10,12,25,27-35,37-38
+  s_ec0893953fb45d::t_c429c741398145 81,87
+  s_ec0893953fb45d::t_4625e5d1263a84 80,82-86,88
+  s_ec0893953fb45d::t_a4e4bbb70abad0 95-99
+  s_ec0893953fb45d::t_8c7400ac8ec454 79
+  s_ec0893953fb45d::t_94b3c58017d89a 26,36
+  s_ec0893953fb45d::t_4695ebb9a20acb 14,17-20
+app/(tabs)/settings/index.tsx
+  s_ec0893953fb45d::t_2ee9fd88cdc799 63,69,71,78-83
+  s_ec0893953fb45d::t_11d34d6cb498e6 37
+  s_ec0893953fb45d::t_3674aa22a65ed6 14
+  s_ec0893953fb45d::t_e2fc47b7b720e9 140,143
+app.json
+  s_ec0893953fb45d::t_e5ae753b42369c 48-50
+lib/authConfig.ts
+  s_ec0893953fb45d::t_f5f99726cf793d 1-93
+lib/sessionConfig.ts
+  s_ec0893953fb45d::t_305edc8b3e652a 3
+  s_ec0893953fb45d::t_065607185c971b 8,10-14,16
+  s_ec0893953fb45d::t_f55223894c6cad 4
+app/(auth)/_layout.tsx
+  s_ec0893953fb45d::t_ebb6741b802f62 1-10
+lib/authApi.ts
+  s_ec0893953fb45d::t_36a6514e528867 1-95
+app/index.tsx
+  s_ec0893953fb45d::t_47a4df25d7758f 1-8,10-18,20-32
+  s_ec0893953fb45d::t_028a0dfe0a1ec8 9,19
+app/(tabs)/settings/account.tsx
+  s_ec0893953fb45d::t_3b59891141e855 111,113
+  s_ec0893953fb45d::t_f6b4d4ed7ab3d8 31
+  s_ec0893953fb45d::t_6b995b560756ae 15
+  s_ec0893953fb45d::t_4b1c6a9cb786fa 1
+app/_layout.tsx
+  s_ec0893953fb45d::t_f2b647914f7de6 10,23-24,47-51
+components/auth/AuthFormField.tsx
+  s_ec0893953fb45d::t_05e81d9e0b9fd8 1-93
+app/(auth)/register.tsx
+  s_ec0893953fb45d::t_d29ce8e29bc232 2-25,27-206
+  s_ec0893953fb45d::t_95ea70ca82c38e 1
+  s_ec0893953fb45d::t_a2a0345b7f4300 26
+types/auth.ts
+  s_ec0893953fb45d::t_a45f86bea469f5 1-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.28-trip",
+  "base_commit_sha": "490f139820ef6378efd3e19f3ba175007e90d26d",
+  "prompts": {},
+  "sessions": {
+    "s_ec0893953fb45d": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "63df07f4-c056-49ad-bfc2-b34c78be47a1",
+        "model": "default"
+      },
+      "human_author": "liuyidi <yidiliu@trip.com>"
+    }
+  }
+}
