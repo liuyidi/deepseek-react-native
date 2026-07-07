@@ -1,0 +1,42 @@
+components/chat/ChatMessageText.tsx
+  s_ec0893953fb45d::t_8076c51447959e 7,11,19
+  s_ec0893953fb45d::t_7c8b5762d55fa9 1-6,8-10,12-18,20-46
+components/chat/FloatingChatComposer.tsx
+  s_ec0893953fb45d::t_8509ca4fc413d2 74,95,107,174-176,178-182,184-187
+  s_ec0893953fb45d::t_ce2a93ff7e89bb 39-73
+app/(tabs)/explore.tsx
+  s_ec0893953fb45d::t_cf84a0bbc9d1d5 57-62
+  s_ec0893953fb45d::t_31127933fe8a0c 379-409
+  s_ec0893953fb45d::t_36505d678e737c 300-310
+  s_ec0893953fb45d::t_b400cb682d4172 32
+lib/chatMarkdownStyles.ts
+  s_ec0893953fb45d::t_216c9e2814037b 1-147
+app.json
+  s_ec0893953fb45d::t_74aa4f834384ca 25
+package.json
+  s_ec0893953fb45d::t_41654e83c1d5fc 12-14
+components/chat/ChatBubble.tsx
+  s_ec0893953fb45d::t_e48befd9139c33 32-33,35
+  s_ec0893953fb45d::t_5c520d4735d9d9 72
+  s_ec0893953fb45d::t_33f6f006f9e216 1,3-7
+  s_ec0893953fb45d::t_74fd671f460aa3 31,34,36-37
+  s_ec0893953fb45d::t_98493a3d51ddf4 9
+scripts/build-android-apk.sh
+  s_ec0893953fb45d::t_050eeb0ff2f4f0 1-62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.28-trip",
+  "base_commit_sha": "f3e0f54c7054a558f79393cb119bf39912e73e6f",
+  "prompts": {},
+  "sessions": {
+    "s_ec0893953fb45d": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "63df07f4-c056-49ad-bfc2-b34c78be47a1",
+        "model": "default"
+      },
+      "human_author": "liuyidi <yidiliu@trip.com>"
+    }
+  }
+}
