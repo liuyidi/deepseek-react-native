@@ -127,20 +127,18 @@ export default function LoginScreen() {
           </Link>
         </View>
 
-        {__DEV__ ? (
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => {
-              enterGuestMode();
-              router.replace("/(tabs)/explore");
-            }}
-            style={({ pressed }) => [styles.guestButton, pressed && styles.pressed]}
-          >
-            <ThemedText type="secondary" style={styles.guestButtonText}>
-              跳过登录，直接进入 Chat（临时）
-            </ThemedText>
-          </Pressable>
-        ) : null}
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => {
+            enterGuestMode();
+            router.replace("/(tabs)/explore");
+          }}
+          style={({ pressed }) => [styles.guestButton, pressed && styles.pressed]}
+        >
+          <ThemedText type="secondary" style={styles.guestButtonText}>
+            跳过登录，直接进入 Chat（临时）
+          </ThemedText>
+        </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>
   );

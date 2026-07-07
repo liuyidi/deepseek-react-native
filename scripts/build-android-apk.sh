@@ -4,26 +4,60 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT_DIR"
 
-if [[ -z "${JAVA_HOME:-}" ]]; then
+is_valid_java_home() {
+  local home="$1"
+  [[ -n "$home" && -x "$home/bin/java" ]]
+}
+
+java_major_version() {
+  "$1/bin/java" -version 2>&1 | awk -F '[ ".]+' '/version/ { print $4; exit }'
+}
+
+resolve_java_home() {
+  local candidate major
+
+  if is_valid_java_home "${JAVA_HOME:-}"; then
+    major="$(java_major_version "$JAVA_HOME")"
+    if [[ "$major" -ge 17 ]]; then
+      echo "$JAVA_HOME"
+      return 0
+    fi
+    echo "Ignoring JAVA_HOME (Java $major): $JAVA_HOME" >&2
+  elif [[ -n "${JAVA_HOME:-}" ]]; then
+    echo "Ignoring invalid JAVA_HOME: $JAVA_HOME" >&2
+  fi
+
   for candidate in \
     "/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home" \
     "/usr/local/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home"; do
-    if [[ -d "$candidate" ]]; then
-      export JAVA_HOME="$candidate"
-      break
+    if is_valid_java_home "$candidate"; then
+      echo "$candidate"
+      return 0
     fi
   done
 
-  if [[ -z "${JAVA_HOME:-}" ]] && command -v /usr/libexec/java_home >/dev/null 2>&1; then
-    export JAVA_HOME="$(/usr/libexec/java_home -v 17 2>/dev/null || /usr/libexec/java_home)"
+  if command -v /usr/libexec/java_home >/dev/null 2>&1; then
+    candidate="$(/usr/libexec/java_home -v 17 2>/dev/null || true)"
+    if is_valid_java_home "$candidate"; then
+      echo "$candidate"
+      return 0
+    fi
   fi
-fi
 
+  return 1
+}
+
+export JAVA_HOME="$(resolve_java_home || true)"
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
 export PATH="${JAVA_HOME:+$JAVA_HOME/bin:}${ANDROID_HOME}/platform-tools:${PATH}"
 
 if [[ -z "${JAVA_HOME:-}" ]]; then
-  echo "JAVA_HOME is not set. Install JDK 17, e.g.: brew install openjdk@17" >&2
+  echo "JDK 17 not found. Install it, e.g.: brew install openjdk@17" >&2
+  exit 1
+fi
+
+if ! is_valid_java_home "$JAVA_HOME"; then
+  echo "Resolved JAVA_HOME is invalid: $JAVA_HOME" >&2
   exit 1
 fi
 
@@ -38,7 +72,10 @@ if [[ ! -x "$ROOT_DIR/android/gradlew" ]]; then
 fi
 
 echo "Using JAVA_HOME=$JAVA_HOME"
+echo "Using Java $("$JAVA_HOME/bin/java" -version 2>&1 | head -n 1)"
 echo "Using ANDROID_HOME=$ANDROID_HOME"
+echo "Bumping version..."
+node "$ROOT_DIR/scripts/bump-version.js"
 echo "Building release APK..."
 
 cd "$ROOT_DIR/android"

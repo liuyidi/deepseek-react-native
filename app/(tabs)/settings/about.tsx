@@ -1,4 +1,3 @@
-import Constants from "expo-constants";
 import { router } from "expo-router";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -7,8 +6,9 @@ import { SettingsGroup } from "@/components/settings/SettingsGroup";
 import { SettingsNavRow } from "@/components/settings/SettingsNavRow";
 import { ThemedText } from "@/components/ThemedText";
 import { useAppTheme } from "@/hooks/useAppTheme";
+import { getAppVersion } from "@/lib/appVersion";
 
-const APP_VERSION = Constants.expoConfig?.version ?? "1.0.0";
+const APP_VERSION = getAppVersion();
 
 export default function AboutSettingsScreen() {
   const insets = useSafeAreaInsets();

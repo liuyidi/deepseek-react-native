@@ -1,5 +1,4 @@
 import { Ionicons } from "@expo/vector-icons";
-import Constants from "expo-constants";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
@@ -16,6 +15,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { maskEmail, maskPhone, type AccountInfo, getAccountInfo } from "@/lib/accountConfig";
 import { APPEARANCE_LABELS } from "@/lib/appearanceLabels";
+import { getAppVersion } from "@/lib/appVersion";
 import { LANGUAGE_LABELS } from "@/lib/languageLabels";
 import { MODEL_LABELS } from "@/lib/modelLabels";
 import { getDeepSeekApiKey, maskApiKey } from "@/lib/deepseekConfig";
@@ -26,7 +26,7 @@ import {
   type UserProfile,
 } from "@/lib/userProfileConfig";
 
-const APP_VERSION = Constants.expoConfig?.version ?? "1.0.0";
+const APP_VERSION = getAppVersion();
 
 export default function SettingsHubScreen() {
   const insets = useSafeAreaInsets();

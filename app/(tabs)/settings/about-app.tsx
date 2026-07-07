@@ -1,4 +1,3 @@
-import Constants from "expo-constants";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -6,8 +5,9 @@ import { ExternalLink } from "@/components/ExternalLink";
 import { ThemedText } from "@/components/ThemedText";
 import { Colors } from "@/constants/Colors";
 import { useAppTheme } from "@/hooks/useAppTheme";
+import { getAppVersion } from "@/lib/appVersion";
 
-const APP_VERSION = Constants.expoConfig?.version ?? "1.0.0";
+const APP_VERSION = getAppVersion();
 
 export default function AboutAppScreen() {
   const insets = useSafeAreaInsets();

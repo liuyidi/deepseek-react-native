@@ -1,7 +1,7 @@
 {
   "name": "deepseek-chat",
   "main": "./index.ts",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -10,6 +10,7 @@
     "web": "expo start --web",
     "test": "jest --watchAll",
     "lint": "expo lint",
+    "version:bump": "node scripts/bump-version.js",
     "build:android:prebuild": "expo prebuild --platform android --no-install",
     "build:android:apk": "bash scripts/build-android-apk.sh"
   },
